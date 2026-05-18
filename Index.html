@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caring at Home — Medicines Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --sage: #4A7060; --sage-light: #ECF3EF; --sage-mid: #9BBFAF;
+  --slate: #253030; --slate-mid: #4A5E5E;
+  --cream: #FAF8F4; --cream-dark: #EDE9E1;
+  --terracotta: #B5644E; --terracotta-light: #F7EDE9;
+  --white: #FFFFFF; --text: #253030; --text-muted: #627070;
+  --border: #D6E2DC; --radius: 12px; --radius-sm: 8px;
+  --shadow: 0 4px 20px rgba(37,48,48,0.09);
+  --transition-med: 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; font-size: 16px; line-height: 1.6; padding-bottom: 72px; }
+
+/* NAV */
+nav { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 1.5rem; display: flex; align-items: center; justify-content: space-between; height: 62px; position: sticky; top: 0; z-index: 200; box-shadow: 0 1px 8px rgba(37,48,48,0.06); }
+.nav-brand { font-family: 'Lora', serif; font-size: 1.05rem; font-weight: 600; color: var(--sage); cursor: pointer; background: none; border: none; display: flex; align-items: center; gap: 8px; }
+.nav-links { display: flex; gap: 2px; }
+.nav-links button { background: none; border: none; padding: 6px 11px; border-radius: var(--radius-sm); cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; color: var(--text-muted); transition: all 0.15s; white-space: nowrap; }
+.nav-links button:hover { background: var(--sage-light); color: var(--sage); }
+.nav-links button.active { background: var(--sage-light); color: var(--sage); font-weight: 500; }
+.emergency-btn { background: var(--terracotta) !important; color: white !important; font-weight: 500 !important; }
+.emergency-btn:hover { background: #9e5540 !important; color: white !important; }
+.hamburger { display: none; background: none; border: none; cursor: pointer; padding: 6px; color: var(--slate); font-size: 1.3rem; }
+@media(max-width:700px) {
+  .nav-links { display: none; position: fixed; top: 62px; left: 0; right: 0; background: var(--white); border-bottom: 1px solid var(--border); flex-direction: column; padding: 0.75rem; gap: 4px; box-shadow: var(--shadow); z-index: 199; }
+  .nav-links.open { display: flex; }
+  .hamburger { display: block; }
+}
+
+/* SEARCH BAR */
+.search-overlay { display: none; position: fixed; inset: 0; background: rgba(37,48,48,0.5); z-index: 300; align-items: flex-start; justify-content: center; padding-top: 80px; }
+.search-overlay.open { display: flex; }
+.search-box { background: var(--white); border-radius: var(--radius); width: 100%; max-width: 640px; margin: 0 1rem; box-shadow: 0 20px 60px rgba(37,48,48,0.2); overflow: hidden; }
+.search-input-wrap { display: flex; align-items: center; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); gap: 0.75rem; }
+.search-input-wrap span { font-size: 1.2rem; color: var(--text-muted); }
+.search-input-wrap input { flex: 1; border: none; outline: none; font-family: 'DM Sans', sans-serif; font-size: 1rem; color: var(--text); background: transparent; }
+.search-input-wrap button { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 1.1rem; padding: 4px; }
+.search-results { max-height: 420px; overflow-y: auto; }
+.search-result-item { padding: 0.9rem 1.25rem; cursor: pointer; border-bottom: 1px solid var(--border); transition: background 0.1s; }
+.search-result-item:hover { background: var(--cream); }
+.search-result-item:last-child { border-bottom: none; }
+.search-result-item .result-tag { font-size: 0.7rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: var(--sage); margin-bottom: 3px; }
+.search-result-item h4 { font-size: 0.9rem; font-weight: 500; color: var(--slate); margin-bottom: 2px; }
+.search-result-item p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; }
+.search-no-results { padding: 2rem 1.25rem; text-align: center; color: var(--text-muted); font-size: 0.9rem; }
+.search-hint { padding: 0.75rem 1.25rem; font-size: 0.75rem; color: var(--text-muted); background: var(--cream); }
+
+/* SEARCH TRIGGER IN NAV */
+.search-trigger { display: flex; align-items: center; gap: 6px; background: var(--cream) !important; border: 1px solid var(--border) !important; color: var(--text-muted) !important; padding: 6px 14px !important; border-radius: 20px !important; font-size: 0.82rem !important; cursor: pointer; transition: all 0.15s; min-width: 120px; }
+.search-trigger:hover { border-color: var(--sage-mid) !important; background: var(--sage-light) !important; color: var(--sage) !important; }
+
+/* PAGES */
+.page { display: none; opacity: 0; transform: translateY(10px); }
+.page.active { display: block; animation: pageIn var(--transition-med); opacity: 1; transform: translateY(0); }
+.page.leaving { display: block; animation: pageOut 180ms ease forwards; pointer-events: none; }
+@keyframes pageIn { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: translateY(0); } }
+@keyframes pageOut { from { opacity:1; transform: translateY(0); } to { opacity:0; transform: translateY(-6px); } }
+
+/* HERO */
+.hero { background: linear-gradient(155deg, #2E5040 0%, #4A7060 55%, #5A8272 100%); padding: 3.5rem 1.5rem 3rem; text-align: center; }
+.hero-eyebrow { font-size: 0.74rem; font-weight: 500; letter-spacing: 0.15em; text-transform: uppercase; color: var(--sage-mid); margin-bottom: 1rem; }
+.hero h1 { font-family: 'Lora', serif; font-size: clamp(1.6rem,4vw,2.2rem); font-weight: 600; color: #fff; line-height: 1.25; margin-bottom: 1rem; max-width: 540px; margin-left: auto; margin-right: auto; }
+.hero p { color: rgba(255,255,255,0.8); max-width: 480px; margin: 0 auto 2rem; font-size: 0.95rem; line-height: 1.8; }
+.hero-actions { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+.hero-note { display: inline-block; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.22); border-radius: 50px; padding: 7px 18px; font-size: 0.8rem; color: rgba(255,255,255,0.82); cursor: pointer; transition: background 0.15s; }
+.hero-note:hover { background: rgba(255,255,255,0.2); }
+.hero-search { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.95); border-radius: 50px; padding: 9px 20px; font-size: 0.85rem; color: var(--text-muted); cursor: pointer; transition: all 0.2s; border: none; font-family: 'DM Sans', sans-serif; }
+.hero-search:hover { background: #fff; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+
+/* TILES */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit,minmax(150px,1fr)); gap: 0.9rem; padding: 2rem 1.5rem 1rem; max-width: 960px; margin: 0 auto; }
+.tile { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.4rem 1.1rem 1.2rem; cursor: pointer; transition: all 0.2s; text-align: center; }
+.tile:hover { border-color: var(--sage-mid); transform: translateY(-3px); box-shadow: var(--shadow); }
+.tile-icon { font-size: 1.8rem; margin-bottom: 0.65rem; display: block; }
+.tile h3 { font-family: 'Lora', serif; font-size: 0.92rem; font-weight: 600; color: var(--slate); margin-bottom: 0.3rem; line-height: 1.3; }
+.tile p { font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; }
+.tile.urgent { border-color: #DDA090; background: var(--terracotta-light); }
+.tile.urgent h3 { color: var(--terracotta); }
+
+/* STATS BAR */
+.stats-bar { display: flex; gap: 0; max-width: 960px; margin: 0 auto 0; padding: 0 1.5rem 1.5rem; }
+.stat { flex: 1; background: var(--white); border: 1px solid var(--border); padding: 1rem; text-align: center; }
+.stat:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+.stat:last-child { border-radius: 0 var(--radius) var(--radius) 0; }
+.stat + .stat { border-left: none; }
+.stat-num { font-family: 'Lora', serif; font-size: 1.5rem; font-weight: 600; color: var(--sage); display: block; }
+.stat-label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+/* HOME CALLOUT */
+.home-callout { background: var(--white); border-left: 4px solid var(--sage); padding: 1.25rem 1.5rem; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; max-width: 960px; margin: 1.5rem auto 0; }
+.home-callout p { color: var(--text-muted); font-size: 0.88rem; line-height: 1.8; }
+.home-callout strong { color: var(--slate); }
+
+/* QUIZ SECTION */
+.quiz-section { max-width: 960px; margin: 2rem auto 0; padding: 0 1.5rem; }
+.quiz-section h2 { font-family: 'Lora', serif; font-size: 1.2rem; color: var(--slate); margin-bottom: 1rem; }
+.quiz-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1rem; }
+.quiz-card .q-label { font-size: 0.7rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: var(--sage); margin-bottom: 0.6rem; }
+.quiz-card h3 { font-size: 0.975rem; color: var(--slate); margin-bottom: 1rem; line-height: 1.5; }
+.quiz-options { display: flex; flex-direction: column; gap: 0.5rem; }
+.quiz-option { background: var(--cream); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 0.75rem 1rem; cursor: pointer; font-size: 0.875rem; color: var(--text); transition: all 0.15s; text-align: left; font-family: 'DM Sans', sans-serif; }
+.quiz-option:hover { border-color: var(--sage-mid); background: var(--sage-light); }
+.quiz-option.correct { background: #E8F5EE; border-color: #5A9070; color: #2A5040; }
+.quiz-option.wrong { background: #FDECEA; border-color: #C07070; color: #7A2020; }
+.quiz-option.disabled { cursor: default; pointer-events: none; opacity: 0.6; }
+.quiz-option.disabled.correct { opacity: 1; }
+.quiz-feedback { margin-top: 0.85rem; padding: 0.85rem 1rem; border-radius: var(--radius-sm); font-size: 0.875rem; line-height: 1.6; display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: #E8F5EE; color: #2A5040; border: 1px solid #A8D4B8; }
+.quiz-feedback.wrong { background: #FDECEA; color: #7A2020; border: 1px solid #E0A0A0; }
+.quiz-next { margin-top: 0.85rem; background: var(--sage); color: white; border: none; border-radius: var(--radius-sm); padding: 8px 18px; font-size: 0.85rem; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; display: none; }
+.quiz-next.show { display: inline-block; }
+.quiz-score { background: var(--sage-light); border: 1px solid var(--sage-mid); border-radius: var(--radius); padding: 1.5rem; text-align: center; display: none; }
+.quiz-score.show { display: block; }
+.quiz-score .score-num { font-family: 'Lora', serif; font-size: 2.5rem; color: var(--sage); display: block; }
+.quiz-score p { color: var(--slate-mid); font-size: 0.9rem; margin-top: 0.4rem; }
+.quiz-score button { margin-top: 1rem; background: var(--sage); color: white; border: none; border-radius: var(--radius-sm); padding: 8px 20px; font-size: 0.85rem; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+
+/* SECTION HEADER */
+.section-header { background: var(--white); border-bottom: 1px solid var(--border); padding: 1.75rem 1.5rem 1.5rem; }
+.back-btn { background: none; border: none; font-size: 0.82rem; color: var(--text-muted); cursor: pointer; margin-bottom: 0.85rem; padding: 0; font-family: 'DM Sans', sans-serif; display: flex; align-items: center; gap: 4px; }
+.back-btn:hover { color: var(--sage); }
+.section-header h2 { font-family: 'Lora', serif; font-size: 1.5rem; font-weight: 600; color: var(--slate); margin-bottom: 0.4rem; }
+.section-header p { color: var(--text-muted); font-size: 0.88rem; max-width: 580px; }
+
+/* DRUG FILTER TABS */
+.drug-tabs { display: flex; gap: 0.5rem; padding: 1.25rem 1.5rem 0; max-width: 860px; margin: 0 auto; flex-wrap: wrap; }
+.drug-tab { background: var(--white); border: 1.5px solid var(--border); border-radius: 50px; padding: 5px 14px; font-size: 0.78rem; cursor: pointer; color: var(--text-muted); font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+.drug-tab:hover { border-color: var(--sage-mid); color: var(--sage); }
+.drug-tab.active { background: var(--sage); border-color: var(--sage); color: white; }
+
+/* CONTENT */
+.content { max-width: 860px; margin: 0 auto; padding: 1.5rem 1.5rem 2rem; }
+
+/* MEDICINE CARDS */
+.med-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1rem; overflow: hidden; transition: box-shadow 0.2s; }
+.med-card.open { box-shadow: var(--shadow); }
+.med-card[data-category].hidden { display: none; }
+.med-card-header { padding: 1.1rem 1.4rem; display: flex; align-items: center; gap: 0.9rem; cursor: pointer; user-select: none; }
+.med-dot { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; flex-shrink: 0; }
+.morphine-dot{background:#FEF3E8;} .midazolam-dot{background:#EAF3FE;} .haloperidol-dot{background:#F3EBF8;} .hyoscine-dot{background:#E8F5EE;} .dex-dot{background:#FFF5E0;} .metoclopramide-dot{background:#FFE8F0;} .fentanyl-dot{background:#F0E8FF;} .glyco-dot{background:#E8F0FF;} .clonazepam-dot{background:#FFFDE8;}
+.med-card-title { flex: 1; }
+.med-card-title h3 { font-family: 'Lora', serif; font-size: 0.975rem; font-weight: 600; color: var(--slate); }
+.med-card-title p { font-size: 0.75rem; color: var(--text-muted); margin-top: 1px; }
+.med-badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 50px; background: var(--sage-light); color: var(--sage); font-weight: 500; margin-left: auto; margin-right: 0.5rem; white-space: nowrap; }
+.med-badge.core { background: var(--terracotta-light); color: var(--terracotta); }
+.med-toggle { font-size: 1rem; color: var(--text-muted); transition: transform 0.25s; flex-shrink: 0; }
+.med-card.open .med-toggle { transform: rotate(180deg); }
+.med-body { display: none; padding: 0 1.4rem 1.4rem; border-top: 1px solid var(--border); }
+.med-card.open .med-body { display: block; }
+.med-section { margin-top: 1.1rem; }
+.med-section h4 { font-size: 0.68rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); margin-bottom: 0.5rem; }
+.med-section p, .med-section li { font-size: 0.875rem; color: var(--text); line-height: 1.75; }
+.med-section ul { padding-left: 1rem; }
+.med-section li { margin-bottom: 0.28rem; }
+.med-dosing { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 0.5rem; }
+.med-dose-box { background: var(--cream); border-radius: var(--radius-sm); padding: 0.75rem; }
+.med-dose-box h5 { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.35rem; }
+.med-dose-box p { font-size: 0.82rem; color: var(--slate); font-weight: 500; }
+.concern-box { background: var(--sage-light); border-radius: var(--radius-sm); padding: 0.9rem 1.1rem; margin-top: 0.9rem; border: 1px solid #C4DDD2; }
+.concern-box p { font-size: 0.85rem; color: var(--slate-mid); line-height: 1.75; }
+.concern-box strong { color: var(--sage); }
+.warn-inline { background: var(--terracotta-light); border-radius: var(--radius-sm); padding: 0.75rem 1rem; margin-top: 0.75rem; }
+.warn-inline p { font-size: 0.82rem; color: #7A3020; line-height: 1.6; }
+.action-btn { background: var(--sage); color: white; border: none; border-radius: var(--radius-sm); padding: 8px 14px; font-size: 0.82rem; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.action-btn:hover { background: #3A6050; }
+.small-note { font-size: 0.78rem; color: var(--text-muted); }
+
+/* INTERACTION CHECKER */
+.interaction-tool { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.3rem 1.4rem; margin-bottom: 1rem; }
+.interaction-tool h3 { font-family: 'Lora', serif; font-size: 1rem; color: var(--slate); margin-bottom: 0.4rem; }
+.interaction-list { display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 0.5rem; margin-top: 0.9rem; }
+.interaction-list label { background: var(--cream); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0.55rem 0.7rem; font-size: 0.83rem; display: flex; gap: 0.45rem; align-items: center; }
+.interaction-alerts { margin-top: 0.85rem; }
+.interaction-alert { background: var(--terracotta-light); border: 1px solid #e0b7ad; color: #7A3020; border-radius: var(--radius-sm); padding: 0.75rem 0.9rem; font-size: 0.82rem; margin-bottom: 0.55rem; }
+.interaction-ok { background: var(--sage-light); border: 1px solid var(--sage-mid); color: var(--sage); border-radius: var(--radius-sm); padding: 0.75rem 0.9rem; font-size: 0.82rem; }
+
+/* LAST DOSE TIMER */
+.dose-tool { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.3rem 1.4rem; margin-bottom: 1rem; }
+.dose-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem; }
+.dose-action { background: var(--cream); border: 1px solid var(--border); color: var(--text); border-radius: 999px; padding: 7px 12px; cursor: pointer; font-size: 0.8rem; }
+.dose-action:hover { border-color: var(--sage-mid); color: var(--sage); }
+.dose-log { margin-top: 0.9rem; }
+.dose-log-item { border-bottom: 1px solid var(--border); padding: 0.7rem 0; display: flex; justify-content: space-between; gap: 0.8rem; }
+.dose-log-item:last-child { border-bottom: none; }
+.dose-log-item strong { color: var(--slate); font-size: 0.84rem; }
+.dose-log-item span { color: var(--text-muted); font-size: 0.78rem; text-align: right; }
+
+/* SYMPTOM CHECKER */
+.symptom-checker { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; }
+.symptom-checker h3 { font-family: 'Lora', serif; font-size: 1.05rem; color: var(--slate); margin-bottom: 1rem; }
+.sc-options { display: grid; grid-template-columns: repeat(auto-fill,minmax(160px,1fr)); gap: 0.6rem; }
+.sc-option { background: var(--cream); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 0.75rem; cursor: pointer; text-align: center; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+.sc-option:hover { border-color: var(--sage-mid); background: var(--sage-light); }
+.sc-option.selected { border-color: var(--sage); background: var(--sage-light); }
+.sc-option .sc-icon { font-size: 1.4rem; display: block; margin-bottom: 0.35rem; }
+.sc-option span:last-child { font-size: 0.8rem; color: var(--slate); }
+.sc-result { margin-top: 1.25rem; background: var(--cream-dark); border-radius: var(--radius-sm); padding: 1.1rem 1.25rem; display: none; }
+.sc-result.show { display: block; }
+.sc-result h4 { font-size: 0.85rem; font-weight: 500; color: var(--slate); margin-bottom: 0.5rem; }
+.sc-result p, .sc-result li { font-size: 0.875rem; color: var(--text); line-height: 1.7; }
+.sc-result ul { padding-left: 1rem; margin-top: 0.4rem; }
+.sc-result li { margin-bottom: 0.25rem; }
+.sc-urgency { display: inline-block; padding: 3px 10px; border-radius: 50px; font-size: 0.72rem; font-weight: 500; margin-bottom: 0.6rem; }
+.urgency-high { background: #FDECEA; color: #922B2B; }
+.urgency-med { background: #FEF8E8; color: #7A5400; }
+.urgency-low { background: var(--sage-light); color: var(--sage); }
+
+/* SYMPTOM CARDS */
+.symptom-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 1rem; overflow: hidden; }
+.symptom-header { padding: 1rem 1.4rem; display: flex; align-items: center; gap: 0.75rem; border-bottom: 1px solid var(--border); }
+.symptom-badge { padding: 3px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 500; white-space: nowrap; }
+.badge-urgent { background: #FDECEA; color: #922B2B; }
+.badge-watch { background: #FEF8E8; color: #7A5400; }
+.symptom-header h3 { font-family: 'Lora', serif; font-size: 0.975rem; color: var(--slate); }
+.symptom-body { padding: 1.2rem 1.4rem; }
+.symptom-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.25rem; }
+.sym-col h4 { font-size: 0.67rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.45rem; }
+.sym-col p, .sym-col li { font-size: 0.85rem; color: var(--text); line-height: 1.65; }
+.sym-col ul { padding-left: 1rem; }
+.sym-col li { margin-bottom: 0.22rem; }
+@media(max-width:580px) { .symptom-grid { grid-template-columns: 1fr; gap: 0.9rem; } }
+
+/* TIMING */
+.timing-block { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.4rem; margin-bottom: 1.1rem; }
+.timing-block h3 { font-family: 'Lora', serif; font-size: 1rem; color: var(--slate); margin-bottom: 1rem; }
+.timing-row { display: flex; align-items: flex-start; gap: 1rem; padding: 0.7rem 0; border-bottom: 1px solid var(--border); }
+.timing-row:last-child { border-bottom: none; padding-bottom: 0; }
+.timing-step { width: 26px; height: 26px; background: var(--sage-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 600; color: var(--sage); flex-shrink: 0; margin-top: 1px; }
+.timing-row p { font-size: 0.875rem; color: var(--text); line-height: 1.65; }
+.timing-pills { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+.timing-pill { background: var(--cream-dark); border-radius: 50px; padding: 4px 11px; font-size: 0.76rem; color: var(--slate-mid); }
+
+/* CARE CARDS */
+.care-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.3rem 1.4rem; margin-bottom: 0.9rem; }
+.care-card h3 { font-family: 'Lora', serif; font-size: 0.975rem; color: var(--slate); margin-bottom: 0.65rem; }
+.care-card p, .care-card li { font-size: 0.875rem; color: var(--text); line-height: 1.75; }
+.care-card ul { padding-left: 1rem; }
+.care-card li { margin-bottom: 0.28rem; }
+
+/* CHECKLIST */
+.checklist { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.4rem; margin-bottom: 1rem; }
+.checklist h3 { font-family: 'Lora', serif; font-size: 1rem; color: var(--slate); margin-bottom: 1rem; }
+.check-item { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.6rem 0; border-bottom: 1px solid var(--border); cursor: pointer; }
+.check-item:last-child { border-bottom: none; }
+.check-item input[type=checkbox] { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--sage); flex-shrink: 0; cursor: pointer; }
+.check-item label { font-size: 0.875rem; color: var(--text); line-height: 1.5; cursor: pointer; }
+.check-item input:checked + label { color: var(--text-muted); text-decoration: line-through; }
+.checklist-progress { margin-top: 1rem; }
+.progress-bar-wrap { background: var(--cream-dark); border-radius: 50px; height: 6px; overflow: hidden; }
+.progress-bar-fill { background: var(--sage); height: 100%; border-radius: 50px; transition: width 0.3s ease; }
+.progress-text { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem; }
+
+/* EMERGENCY */
+.emergency-hero { background: var(--terracotta); padding: 2.5rem 1.5rem 2rem; text-align: center; }
+.emergency-hero h2 { font-family: 'Lora', serif; font-size: 1.7rem; color: white; margin-bottom: 0.4rem; }
+.emergency-hero p { color: rgba(255,255,255,0.82); font-size: 0.88rem; }
+.emergency-number { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem 1.4rem; margin-bottom: 0.8rem; display: flex; align-items: flex-start; gap: 1.1rem; transition: box-shadow 0.15s; cursor: default; }
+.emergency-number:hover { box-shadow: var(--shadow); }
+.emergency-number .num, .emergency-link { font-family: 'Lora', serif; font-size: 1.35rem; font-weight: 600; color: var(--terracotta); min-width: 120px; line-height: 1.2; padding-top: 2px; text-decoration: none; display: inline-block; }
+.emergency-link:hover { text-decoration: underline; }
+.emergency-link:focus { outline: 2px solid var(--sage); outline-offset: 2px; }
+.emergency-number h3 { font-size: 0.9rem; font-weight: 500; color: var(--slate); margin-bottom: 0.22rem; }
+.emergency-number p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; }
+.warn-box { background: var(--terracotta-light); border: 1px solid #E0C0B8; border-radius: var(--radius-sm); padding: 1.1rem 1.3rem; margin-bottom: 1.4rem; }
+.warn-box h4 { font-size: 0.83rem; font-weight: 500; color: var(--terracotta); margin-bottom: 0.45rem; }
+.warn-box p { font-size: 0.85rem; color: var(--slate-mid); line-height: 1.72; }
+.info-box { background: var(--sage-light); border: 1px solid #C0D8CC; border-radius: var(--radius-sm); padding: 1.1rem 1.3rem; margin-bottom: 1.4rem; }
+.info-box p { font-size: 0.85rem; color: var(--slate-mid); line-height: 1.72; }
+.contacts-note { background: var(--cream-dark); border-radius: var(--radius-sm); padding: 1.3rem; margin-top: 1.4rem; }
+.contacts-note h4 { font-size: 0.85rem; font-weight: 500; color: var(--slate); margin-bottom: 0.8rem; }
+.contact-line { display: flex; justify-content: space-between; padding: 0.48rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+.contact-line:last-child { border-bottom: none; }
+.contact-line span { color: var(--text-muted); }
+.contact-line strong { color: var(--slate-mid); }
+.contact-input { width: 100%; max-width: 200px; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px 10px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; color: var(--slate); background: var(--white); }
+.contact-input:focus { outline: 2px solid var(--sage-mid); border-color: var(--sage); }
+.contact-save-note { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+/* PRINT CARD */
+.print-page { display: none; }
+.print-card { padding: 1.5rem; font-size: 11pt; color: #000; background: #fff; }
+.print-card h1 { font-family: 'Lora', serif; font-size: 1.4rem; margin-bottom: 0.25rem; }
+.print-card .print-sub { font-size: 0.85rem; color: #444; margin-bottom: 1rem; }
+.print-card h2 { font-size: 0.95rem; margin: 1rem 0 0.4rem; border-bottom: 1px solid #ccc; padding-bottom: 0.2rem; }
+.print-card .print-row { display: flex; justify-content: space-between; padding: 0.35rem 0; font-size: 0.9rem; border-bottom: 1px dotted #ddd; }
+.print-card .print-warn { background: #f5ebe8; border: 1px solid #d4a99a; padding: 0.6rem; margin: 0.8rem 0; font-size: 0.82rem; line-height: 1.5; }
+.print-card .print-personal { margin-top: 0.6rem; }
+.print-card .print-personal div { margin: 0.25rem 0; }
+.print-card-btn { display: flex; align-items: center; gap: 8px; background: var(--sage); color: white; border: none; border-radius: var(--radius-sm); padding: 10px 20px; font-size: 0.85rem; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; margin-top: 1.25rem; }
+.print-card-btn:hover { background: #3A6050; }
+
+@media print {
+  nav, .bottom-bar, .print-card-btn, footer, .back-btn, .back-top-btn, .bookmark-prompt,
+  .call-nurse-cta, .section-header p, .hamburger, .search-overlay, .kit-setup, .dose-export-btns { display: none !important; }
+  body { padding: 0; background: white; }
+  .page { display: none !important; }
+  .print-page { display: block !important; }
+  @page { margin: 12mm; size: A5; }
+}
+
+/* BOTTOM BAR */
+.bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--white); border-top: 1px solid var(--border); padding: 0.7rem 1.5rem; display: flex; justify-content: space-between; align-items: center; z-index: 99; box-shadow: 0 -2px 12px rgba(37,48,48,0.07); gap: 1rem; }
+.bottom-bar p { font-size: 0.76rem; color: var(--text-muted); flex: 1; }
+.bottom-bar-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+.bottom-bar-actions button { background: var(--cream); color: var(--text-muted); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 14px; font-size: 0.78rem; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+.bottom-bar-actions button:hover { background: var(--sage-light); color: var(--sage); border-color: var(--sage-mid); }
+.bottom-bar-actions .btn-emergency { background: var(--terracotta); color: white; border-color: var(--terracotta); }
+.bottom-bar-actions .btn-emergency:hover { background: #9e5540; }
+@media(max-width:500px) { .bottom-bar p { display: none; } }
+
+/* FOOTER */
+footer { background: var(--slate); padding: 2rem 1.5rem; text-align: center; margin-top: 2rem; }
+footer p { color: rgba(255,255,255,0.4); font-size: 0.76rem; line-height: 1.8; }
+footer strong { color: rgba(255,255,255,0.65); }
+
+/* TOOLTIP */
+.tooltip-wrap { position: relative; display: inline; }
+.tooltip-trigger { border-bottom: 1px dashed var(--sage-mid); cursor: help; color: inherit; }
+.tooltip-box { display: none; position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: var(--slate); color: white; font-size: 0.75rem; padding: 6px 10px; border-radius: 6px; white-space: nowrap; z-index: 50; line-height: 1.4; max-width: 220px; white-space: normal; text-align: center; }
+.tooltip-wrap:hover .tooltip-box { display: block; }
+
+/* SCROLL REVEAL */
+.reveal { opacity: 0; transform: translateY(14px); transition: opacity 500ms ease, transform 500ms ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* FLOAT BUTTONS */
+.back-top-btn {
+  position: fixed; right: 1.1rem; bottom: 5.6rem; z-index: 130;
+  width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--border);
+  background: var(--white); color: var(--sage); cursor: pointer; display: none;
+  box-shadow: var(--shadow);
+}
+.back-top-btn.show { display: block; }
+.bookmark-prompt {
+  position: fixed; left: 1rem; right: 1rem; bottom: 5.5rem; z-index: 140;
+  background: var(--white); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 0.85rem 1rem; display: none; box-shadow: var(--shadow);
+}
+.bookmark-prompt.show { display: block; }
+.bookmark-prompt p { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.55rem; }
+.bookmark-actions { display: flex; gap: 0.45rem; flex-wrap: wrap; }
+.bookmark-actions button { background: var(--cream); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px 10px; cursor: pointer; font-size: 0.77rem; color: var(--text); }
+.bookmark-actions button.primary { background: var(--sage); color: white; border-color: var(--sage); }
+
+/* KIT SETUP */
+.kit-setup { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.3rem 1.4rem; margin-bottom: 1rem; }
+.kit-setup h3 { font-family: 'Lora', serif; font-size: 1rem; color: var(--slate); margin-bottom: 0.35rem; }
+.kit-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(170px,1fr)); gap: 0.45rem; margin: 0.75rem 0; }
+.kit-grid label { font-size: 0.82rem; display: flex; gap: 0.4rem; align-items: center; cursor: pointer; }
+.kit-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+.kit-actions button { background: var(--cream); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px 12px; font-size: 0.78rem; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.kit-actions button.primary { background: var(--sage); color: white; border-color: var(--sage); }
+.med-card.kit-hidden { display: none !important; }
+
+/* CALL NURSE CTA */
+.call-nurse-cta {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: 4.5rem; z-index: 125;
+  background: var(--terracotta); color: white; text-decoration: none; font-weight: 600;
+  padding: 12px 22px; border-radius: 50px; font-size: 0.9rem; box-shadow: 0 6px 24px rgba(181,100,78,0.45);
+  display: none; white-space: nowrap; max-width: calc(100% - 2rem); text-align: center;
+}
+.call-nurse-cta.show { display: block; }
+.call-nurse-cta:hover { background: #9e5540; color: white; }
+
+.dose-export-btns { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.85rem; }
+.dose-export-btns button { background: var(--sage-light); border: 1px solid var(--sage-mid); color: var(--sage); border-radius: var(--radius-sm); padding: 8px 14px; font-size: 0.8rem; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.dose-export-btns button:hover { background: var(--sage); color: white; }
+.dose-history-item { border-bottom: 1px solid var(--border); padding: 0.65rem 0; font-size: 0.82rem; }
+.dose-history-item:last-child { border-bottom: none; }
+.toast { position: fixed; top: 72px; left: 50%; transform: translateX(-50%); background: var(--slate); color: white; padding: 10px 18px; border-radius: 50px; font-size: 0.82rem; z-index: 400; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+.toast.show { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- SEARCH OVERLAY -->
+<div class="search-overlay" id="searchOverlay" onclick="closeSearch(event)">
+  <div class="search-box" onclick="event.stopPropagation()">
+    <div class="search-input-wrap">
+      <span>🔍</span>
+      <input type="text" id="searchInput" placeholder="Search medicines, symptoms, topics..." oninput="runSearch(this.value)" autocomplete="off">
+      <button onclick="closeSearchPanel()">✕</button>
+    </div>
+    <div class="search-hint">Try: "gurgle", "throw up", "scared", "injection"</div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <button class="nav-brand" onclick="showPage('home')">🕊 Caring at Home</button>
+  <div class="nav-links" id="navLinks">
+    <button class="search-trigger" onclick="openSearch()">🔍 Search</button>
+    <button onclick="showPage('medicines')" id="nav-medicines">Medicines</button>
+    <button onclick="showPage('symptoms')" id="nav-symptoms">Symptoms</button>
+    <button onclick="showPage('timing')" id="nav-timing">How to give</button>
+    <button onclick="showPage('selfcare')" id="nav-selfcare">For you</button>
+    <button onclick="showPage('emergency')" id="nav-emergency" class="emergency-btn">📞 Help now</button>
+  </div>
+  <button class="hamburger" onclick="toggleNav()" id="hamburger">☰</button>
+</nav>
+
+<!-- ===== HOME ===== -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <p class="hero-eyebrow">Palliative care at home — medication guide</p>
+    <h1>You're doing something deeply loving. We're here to help.</h1>
+    <p>This guide explains your loved one's medicines, what to look for, and who to call — in plain language, available any time you need it.</p>
+    <div class="hero-actions">
+      <button class="hero-search" onclick="openSearch()">🔍 Search anything...</button>
+      <span class="hero-note" onclick="showPage('emergency')">📞 Need help now?</span>
+    </div>
+  </div>
+
+  <div class="tiles">
+    <div class="tile" onclick="showPage('medicines')"><span class="tile-icon">💊</span><h3>Medicines in the kit</h3><p>9 medicines explained simply</p></div>
+    <div class="tile" onclick="showPage('symptoms')"><span class="tile-icon">👁</span><h3>Recognising symptoms</h3><p>What to look for and when to act</p></div>
+    <div class="tile" onclick="showPage('timing')"><span class="tile-icon">🕐</span><h3>How to give medicines</h3><p>Step-by-step injection guide</p></div>
+    <div class="tile" onclick="showPage('selfcare')"><span class="tile-icon">🤲</span><h3>Looking after yourself</h3><p>Support and resources for carers</p></div>
+    <div class="tile urgent" onclick="showPage('emergency')"><span class="tile-icon">📞</span><h3>Help now</h3><p>Emergency numbers and contacts</p></div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat"><span class="stat-num">9</span><span class="stat-label">Medicines explained</span></div>
+    <div class="stat"><span class="stat-num">24/7</span><span class="stat-label">Nurse line available</span></div>
+    <div class="stat"><span class="stat-num">5</span><span class="stat-label">Quiz scenarios</span></div>
+    <div class="stat"><span class="stat-num">6</span><span class="stat-label">Crisis contacts</span></div>
+  </div>
+
+  <div class="home-callout" style="margin-top:1.5rem; margin-left:1.5rem; margin-right:1.5rem; max-width:none;">
+    <p><strong>You are not expected to do this alone.</strong> Your palliative care nurse, GP, or pharmacist can be called at any time — day or night. This guide supports, but does not replace, their advice. When in doubt about any medicine or symptom, call your care team first.</p>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="quiz-section">
+    <h2>📋 Test your knowledge — quick scenarios</h2>
+    <div id="quiz-container"></div>
+    <div class="quiz-score" id="quiz-score">
+      <span class="score-num" id="score-display"></span>
+      <p id="score-msg"></p>
+      <button onclick="resetQuiz()">Try again</button>
+    </div>
+  </div>
+
+  <div style="height:1rem;"></div>
+</div>
+
+<!-- ===== MEDICINES ===== -->
+<div class="page" id="page-medicines">
+  <div class="section-header">
+    <button class="back-btn" onclick="showPage('home')">← Back to home</button>
+    <h2>Medicines in your kit</h2>
+    <p>Your pharmacist prepared a "just in case" supply. Tap any medicine to expand it. Filter by category below.</p>
+  </div>
+  <div class="drug-tabs">
+    <button class="drug-tab active" onclick="filterDrugs('all',this)">All medicines</button>
+    <button class="drug-tab" onclick="filterDrugs('core',this)">Core kit (4)</button>
+    <button class="drug-tab" onclick="filterDrugs('pain',this)">Pain & breathing</button>
+    <button class="drug-tab" onclick="filterDrugs('anxiety',this)">Anxiety & agitation</button>
+    <button class="drug-tab" onclick="filterDrugs('nausea',this)">Nausea & vomiting</button>
+    <button class="drug-tab" onclick="filterDrugs('secretions',this)">Secretions</button>
+    <button class="drug-tab" onclick="filterDrugs('steroid',this)">Steroids</button>
+  </div>
+  <div class="content">
+    <div class="kit-setup reveal" id="kitSetup">
+      <h3>Your medicine kit</h3>
+      <p class="small-note">Tick only the medicines your pharmacist gave you. The guide will focus on your kit and pre-fill the interaction checker.</p>
+      <div class="kit-grid" id="kitGrid"></div>
+      <div class="kit-actions">
+        <button type="button" class="primary" onclick="saveKitSelection()">Save my kit</button>
+        <button type="button" onclick="selectAllKit()">Select all 9</button>
+        <button type="button" onclick="showAllMeds()">Show all medicines</button>
+      </div>
+    </div>
+    <div class="interaction-tool reveal">
+      <h3>Interaction checker</h3>
+      <p class="small-note">Tick medicines currently in the kit. This tool highlights combinations to discuss with your palliative nurse or pharmacist.</p>
+      <div class="interaction-list" id="interactionList"></div>
+      <div class="interaction-alerts" id="interactionAlerts"></div>
+    </div>
+
+    <!-- MORPHINE -->
+    <div class="med-card reveal" id="card-morphine" data-med="morphine" data-category="core pain">
+      <div class="med-card-header" onclick="toggleCard('card-morphine')">
+        <div class="med-dot morphine-dot">🟠</div>
+        <div class="med-card-title"><h3>Morphine</h3><p>Pain, breathlessness</p></div>
+        <span class="med-badge core">Core kit</span>
+        <span class="med-toggle">▾</span>
+      </div>
+      <div class="med-body">
+        <div class="med-section"><h4>What it is for</h4><ul><li>Relieving pain that other medicines are not controlling</li><li>Easing the distressing sensation of breathlessness or air hunger</li><li>Does not treat the underlying illness — makes the person more comfortable</li></ul></div>
+        <div class="med-section"><h4>Usual dosing (under the skin)</h4>
+          <div class="med-dosing">
+            <div class="med-dose-box"><h5>Typical when-needed dose</h5><p>2.5–5 mg under the skin</p></div>
+            <div class="med-dose-box"><h5>Onset</h5><p>20–30 minutes</p></div>
+            <div class="med-dose-box"><h5>Minimum interval</h5><p>4 hours (unless nurse advises otherwise)</p></div>
+            <div class="med-dose-box"><h5>Duration of effect</h5><p>4–6 hours</p></div>
+          </div>
+        </div>
+        <div class="med-section"><h4>Signs it may be needed</h4><ul><li>Facial grimacing, wincing, or moaning</li><li>Restlessness not helped by repositioning or reassurance</li><li>Breathing looks laboured and is visibly distressing to them</li></ul></div>
+        <div class="concern-box"><p><strong>"Will morphine make them die sooner?"</strong><br>At doses prescribed for comfort, morphine does not hasten death. Research supports this. It is given to reduce suffering, not to shorten life.</p></div>
+        <div class="warn-inline"><p>⚠️ Do not repeat a dose sooner than your nurse advised. Record every dose given.</p></div>
+      </div>
+    </div>
+
+    <!-- FENTANYL -->
+    <div class="med-card reveal" id="card-fentanyl" data-med="fentanyl" data-category="pain">
+      <div class="med-card-header" onclick="toggleCard('card-fentanyl')">
+        <div class="med-dot fentanyl-dot">🟤</div>
+        <div class="med-card-title"><h3>Fentanyl (patch)</h3><p>Continuous pain control</p></div>
+        <span class="med-badge">Extended kit</span>
+        <span class="med-toggle">▾</span>
+      </div>
+      <div class="med-body">
+        <div class="med-section"><h4>What it is for</h4><ul><li>Providing continuous background pain relief over 72 hours</li><li>Used when morphine cannot be tolerated or swallowed medicines are no longer possible</li><li>Delivered through a patch applied to the skin</li></ul></div>
+        <div class="med-section"><h4>How to use the patch</h4><ul><li>Apply to flat, hairless skin on the upper arm, chest, or back — not over bony areas</li><li>Change every 72 hours (3 days) — write the date and time on the patch in texta</li><li>Rotate sites to avoid skin irritation</li><li>Old patches still contain fentanyl — fold sticky sides together and return to pharmacy</li></ul></div>
+        <div class="med-section"><h4>Dosing</h4>
+          <div class="med-dosing">
+            <div class="med-dose-box"><h5>Onset (new patch)</h5><p>12–24 hours to full effect</p></div>
+            <div class="med-dose-box"><h5>Patch change</h5><p>Every 72 hours</p></div>
+          </div>
+        </div>
+        <div class="concern-box"><p><strong>Important:</strong> Fentanyl patches provide steady background pain relief only — you may still need extra morphine when needed for sudden pain flares. Do not cut, heat, or expose the patch to direct sunlight.</p></div>
+      </div>
+    </div>
+
+    <!-- MIDAZOLAM -->
+    <div class="med-card reveal" id="card-midazolam" data-med="midazolam" data-category="core anxiety">
+      <div class="med-card-header" onclick="toggleCard('card-midazolam')">
+        <div class="med-dot midazolam-dot">🔵</div>
+        <div class="med-card-title"><h3>Midazolam</h3><p>Anxiety, agitation, seizures</p></div>
+        <span class="med-badge core">Core kit</span>
+        <span class="med-toggle">▾</span>
+      </div>
+      <div class="med-body">
+        <div class="med-section"><h4>What it is for</h4><ul><li>Severe anxiety or panic that cannot be settled by reassurance alone</li><li>Distressing agitation and restlessness</li><li>Stopping or reducing seizures if they occur</li></ul></div>
+        <div class="med-section"><h4>Usual dosing (under the skin)</h4>
+          <div class="med-dosing">
+            <div class="med-dose-box"><h5>Typical when-needed dose</h5><p>2.5–5 mg under the skin</p></div>
+            <div class="med-dose-box"><h5>Onset</h5><p>15–20 minutes</p></div>
+            <div class="med-dose-box"><h5>Minimum interval</h5><p>2–4 hours</p></div>
+            <div class="med-dose-box"><h5>Duration</h5><p>2–4 hours</p></div>
+          </div>
+        </div>
+        <div class="med-section"><h4>Signs it may be needed</h4><ul><li>Picking at bedclothes, pulling at clothing or tubes</li><li>Crying out or calling repeatedly despite reassurance</li><li>Muscle jerking or seizure occurring</li></ul></div>
+        <div class="concern-box"><p><strong>First time using for agitation — call your nurse first.</strong> They can confirm it is appropriate for what you are seeing and walk you through it over the phone.</p></div>
+      </div>
+    </div>
+
+    <!-- CLONAZEPAM -->
+    <div class="med-card reveal" id="card-clonazepam" data-med="clonazepam" data-category="anxiety">
+      <div class="med-card-header" onclick="toggleCard('card-clonazepam')">
+        <div class="med-dot clonazepam-dot">🟡</div>
+        <div class="med-card-title"><h3>Clonazepam</h3><p>Anxiety, muscle jerks, seizures</p></div>
+        <span class="med-badge">Extended kit</span>
+        <span class="med-toggle">▾</span>
+      </div>
+      <div class="med-body">
+        <div class="med-section"><h4>What it is for</h4><ul><li>Sustained anxiety or agitation, particularly when longer duration is needed than midazolam provides</li><li>Sudden muscle jerks that can occur near end of life</li><li>Seizure management or prevention</li></ul></div>
+        <div class="med-section"><h4>How it is given</h4><p>Can be given under the tongue (as a wafer or drops) or under the skin. Under-the-tongue is useful when an injection is difficult. Onset is 20–30 minutes; duration up to 6–8 hours.</p></div>
+        <div class="concern-box"><p><strong>Note:</strong> Clonazepam and midazolam both calm the nervous system in a similar way. Your nurse or doctor will specify which one to use and when — do not use both without instruction.</p></div>
+      </div>
+    </div>
+
+    <!-- HALOPERIDOL -->
+    <div class="med-card reveal" id="card-haloperidol" data-med="haloperidol" data-category="core nausea">
+      <div class="med-card-header" onclick="toggleCard('card-haloperidol')">
+        <div class="med-dot haloperidol-dot">🟣</div>
+        <div class="med-card-title"><h3>Haloperidol</h3><p>Confusion, nausea</p></div>
+        <span class="med-badge core">Core kit</span>
+        <span class="med-toggle">▾</span>
+      </div>
+      <div class="med-body">
+        <div class="med-section"><h4>What it is for</h4><ul><li>Reducing sudden confusion when causing visible distress</li><li>Helping with distressing hallucinations</li><li>Controlling nausea and vomiting when other measures are insufficient</li></ul></div>
+        <div class="med-section"><h4>Usual dosing</h4>
+          <div class="med-dosing">
+            <div class="med-dose-box"><h5>Typical when-needed dose</h5><p>0.5–1.5 mg under the skin</p></div>
+            <div class="med-dose-box"><h5>Onset</h5><p>20–30 minutes</p></div>
+          </div>
+        </div>
+        <div class="concern-box"><p><strong>Not all confusion needs treatment.</strong> Near end of life, some visions and confusion can be peaceful for the person even if difficult to witness. Haloperidol is most appropriate when the confusion is clearly causing the person distress.</p></div>
+      </div>
+    </div>
+
+    <!-- METOCLOPRAMIDE -->
+    <div class="med-card reveal" id="card-metoclopramide" data-med="metoclopramide" data-category="nausea">
+      <div class="med-card-header" onclick="toggleCard('card-metoclopramide')">
+        <div class="med-dot metoclopramide-dot">🩷</div>
+        <div class="med-card-title"><h3>Metoclopramide</h3><p>Nausea, vomiting, slow stomach emptying</p></div>
+        <span class="med-badge">Extended kit</span>
+        <span class="med-toggle">▾</span>
+      </div>
+      <div class="med-body">
+        <div class="med-section"><h4>What it is for</h4><ul><li>Nausea and vomiting, particularly when related to the stomach not emptying properly</li><li>Useful when nausea is brought on by movement or eating</li><li>Can be given under the skin or via a small continuous pump under the skin</li></ul></div>
+        <div class="med-section"><h4>How it works</h4><p>Metoclopramide speeds up gastric emptying and helps the stomach empty and reduces sickness signals in the brain. It is particularly useful when nausea is linked to strong pain medicines or a slow bowel.</p></div>
+        <div class="warn-inline"><p>⚠️ Avoid in bowel obstruction. Do not use if haloperidol is also being given for nausea without guidance — they work in a similar way and using both together increases the risk of side effects.</p></div>
+      </div>
+    </div>
+
+    <!-- HYOSCINE -->
+    <div class="med-card reveal" id="card-hyoscine" data-med="hyoscine" data-category="core secretions">
+      <div class="med-card-header" onclick="toggleCard('card-hyoscine')">
+        <div class="med-dot hyoscine-dot">🟢</div>
+        <div class="med-card-title"><h3>Hyoscine butylbromide</h3><p>Noisy breathing, secretions</p></div>
+        <span class="med-badge core">Core kit</span>
+        <span class="med-toggle">▾</span>
+      </div>
+      <div class="med-body">
+        <div class="med-section"><h4>What it is for</h4><ul><li>Reducing the gurgling or rattling sound in breathing near end of life</li><li>This occurs because the person can no longer swallow their own secretions — it is not choking</li></ul></div>
+        <div class="med-section"><h4>Before giving it</h4><p>Try gently repositioning onto their side first. This alone often reduces the sound and should always be attempted before giving the medicine.</p></div>
+        <div class="med-section"><h4>Dosing</h4>
+          <div class="med-dosing">
+            <div class="med-dose-box"><h5>Typical dose</h5><p>20 mg under the skin</p></div>
+            <div class="med-dose-box"><h5>Onset</h5><p>20–30 minutes</p></div>
+          </div>
+        </div>
+        <div class="concern-box"><p><strong>The person is not aware of or distressed by this sound.</strong> Research consistently shows this. It is appropriate to give this medicine as much for your own comfort as for theirs. You do not need to justify it.</p></div>
+      </div>
+    </div>
+
+    <!-- GLYCOPYRRONIUM -->
+    <div class="med-card reveal" id="card-glyco" data-med="glycopyrronium" data-category="secretions">
+      <div class="med-card-header" onclick="toggleCard('card-glyco')">
+        <div class="med-dot glyco-dot">🔷</div>
+        <div class="med-card-title"><h3>Glycopyrronium</h3><p>Alternative for secretions</p></div>
+        <span class="med-badge">Extended kit</span>
+        <span class="med-toggle">▾</span>
+      </div>
+      <div class="med-body">
+        <div class="med-section"><h4>What it is for</h4><ul><li>An alternative to hyoscine butylbromide for managing fluid in the airways that causes noisy breathing</li><li>Preferred in some patients because — unlike hyoscine — it does not cross into the brain, so it causes less confusion and extra sleepiness</li></ul></div>
+        <div class="med-section"><h4>How it differs from hyoscine</h4><ul><li>Does not cause drowsiness or confusion (hyoscine can)</li><li>Used when the person is still somewhat alert and extra sleepiness would be unwanted</li><li>Both work equally well for reducing secretion noises</li></ul></div>
+        <div class="concern-box"><p>Your kit will contain either hyoscine butylbromide <em>or</em> glycopyrronium — rarely both. Check your medicines with your nurse so you know which one you have.</p></div>
+      </div>
+    </div>
+
+    <!-- DEXAMETHASONE -->
+    <div class="med-card reveal" id="card-dex" data-med="dexamethasone" data-category="steroid">
+      <div class="med-card-header" onclick="toggleCard('card-dex')">
+        <div class="med-dot dex-dot">🌟</div>
+        <div class="med-card-title"><h3>Dexamethasone</h3><p>Inflammation, appetite, nausea</p></div>
+        <span class="med-badge">Extended kit</span>
+        <span class="med-toggle">▾</span>
+      </div>
+      <div class="med-body">
+        <div class="med-section"><h4>What it is for</h4><ul><li>Reducing inflammation — particularly useful for brain tumour swelling, spinal cord compression, or bowel obstruction</li><li>Improving appetite and general sense of wellbeing in the short term</li><li>Helping with nausea, particularly when caused by pressure inside the head</li><li>Reducing breathlessness caused by inflammation around tumours</li></ul></div>
+        <div class="med-section"><h4>How it is given</h4><p>Can be given by mouth (as a tablet), under the skin, or via a small continuous pump under the skin. Usually given in the morning to avoid disrupting sleep. Your nurse will specify the dose and timing.</p></div>
+        <div class="warn-inline"><p>⚠️ Dexamethasone should not be stopped suddenly — it needs to be tapered off. Do not adjust the dose without your nurse or doctor's advice. It can cause mood changes, increased appetite, and blood sugar rises even in the short term.</p></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== SYMPTOMS ===== -->
+<div class="page" id="page-symptoms">
+  <div class="section-header">
+    <button class="back-btn" onclick="showPage('home')">← Back to home</button>
+    <h2>Recognising symptoms</h2>
+    <p>Use the symptom checker below or browse the full guide. When in doubt, call your nurse — not 000.</p>
+  </div>
+  <div class="content">
+
+    <!-- SYMPTOM CHECKER TOOL -->
+    <div class="symptom-checker">
+      <h3>🔍 Quick symptom checker — what are you seeing?</h3>
+      <div class="sc-options">
+        <button class="sc-option" onclick="showSymptomResult('pain')"><span class="sc-icon">😣</span><span>Pain or distress</span></button>
+        <button class="sc-option" onclick="showSymptomResult('agitation')"><span class="sc-icon">😰</span><span>Agitation / restless</span></button>
+        <button class="sc-option" onclick="showSymptomResult('breathing')"><span class="sc-icon">🫁</span><span>Noisy breathing</span></button>
+        <button class="sc-option" onclick="showSymptomResult('confusion')"><span class="sc-icon">🌀</span><span>Confusion</span></button>
+        <button class="sc-option" onclick="showSymptomResult('nausea')"><span class="sc-icon">🤢</span><span>Nausea / vomiting</span></button>
+        <button class="sc-option" onclick="showSymptomResult('unresponsive')"><span class="sc-icon">😶</span><span>Unresponsive</span></button>
+      </div>
+      <div class="sc-result" id="sc-result"></div>
+    </div>
+
+    <div class="symptom-card">
+      <div class="symptom-header"><span class="symptom-badge badge-urgent">Give medicine / call nurse</span><h3>Pain</h3></div>
+      <div class="symptom-body"><div class="symptom-grid">
+        <div class="sym-col"><h4>What you may see</h4><ul><li>Facial grimacing or wincing</li><li>Moaning or groaning</li><li>Guarding a part of the body</li><li>Restlessness not helped by repositioning</li></ul></div>
+        <div class="sym-col"><h4>What to do</h4><ul><li>Speak calmly, hold their hand</li><li>Try repositioning first</li><li>Give prescribed morphine dose</li><li>Call nurse if no change in 30 min</li></ul></div>
+        <div class="sym-col"><h4>Medicine</h4><p><strong>Morphine</strong> — under the skin<br><br>Do not repeat sooner than your nurse advised. Record every dose.</p></div>
+      </div></div>
+    </div>
+
+    <div class="symptom-card">
+      <div class="symptom-header"><span class="symptom-badge badge-urgent">Call nurse first</span><h3>Agitation or severe anxiety</h3></div>
+      <div class="symptom-body"><div class="symptom-grid">
+        <div class="sym-col"><h4>What you may see</h4><ul><li>Picking at sheets or clothing</li><li>Trying to get out of bed</li><li>Crying out repeatedly</li><li>Seems frightened despite reassurance</li></ul></div>
+        <div class="sym-col"><h4>What to do</h4><ul><li>Stay present — your voice and touch help</li><li>Keep room quiet and dimly lit</li><li>Call your palliative care nurse</li><li>Give midazolam if instructed</li></ul></div>
+        <div class="sym-col"><h4>Medicine</h4><p><strong>Midazolam</strong> — under the skin<br><br>Call nurse before first use for agitation.</p></div>
+      </div></div>
+    </div>
+
+    <div class="symptom-card">
+      <div class="symptom-header"><span class="symptom-badge badge-watch">Try positioning first</span><h3>Noisy / rattling breathing</h3></div>
+      <div class="symptom-body"><div class="symptom-grid">
+        <div class="sym-col"><h4>What you may see</h4><ul><li>Gurgling or rattling with each breath</li><li>Breathing through open mouth</li><li>Person is unresponsive</li></ul></div>
+        <div class="sym-col"><h4>What to do</h4><ul><li>Gently turn onto their side first</li><li>Wipe mouth with damp cloth</li><li>Give hyoscine or glycopyrronium if still noisy</li></ul></div>
+        <div class="sym-col"><h4>Medicine</h4><p><strong>Hyoscine butylbromide</strong> or <strong>Glycopyrronium</strong><br><br>They are not distressed by this sound.</p></div>
+      </div></div>
+    </div>
+
+    <div class="symptom-card">
+      <div class="symptom-header"><span class="symptom-badge badge-watch">Observe / call nurse if distressing</span><h3>Confusion</h3></div>
+      <div class="symptom-body"><div class="symptom-grid">
+        <div class="sym-col"><h4>What you may see</h4><ul><li>Not recognising familiar people</li><li>Talking to people who are not there</li><li>Saying things that don't make sense</li><li>Switching lucid and confused</li></ul></div>
+        <div class="sym-col"><h4>What to do</h4><ul><li>Stay calm — do not argue</li><li>Use their name, speak slowly</li><li>Keep familiar faces nearby</li><li>Call nurse if visibly distressed</li></ul></div>
+        <div class="sym-col"><h4>Medicine</h4><p><strong>Haloperidol</strong> — under the skin<br><br>Most useful when confusion is causing clear distress.</p></div>
+      </div></div>
+    </div>
+
+    <div class="symptom-card">
+      <div class="symptom-header"><span class="symptom-badge badge-watch">Manage / call nurse</span><h3>Nausea and vomiting</h3></div>
+      <div class="symptom-body"><div class="symptom-grid">
+        <div class="sym-col"><h4>What you may see</h4><ul><li>Retching or vomiting</li><li>Refuses food or fluids</li><li>Appears nauseated, pale, sweating</li></ul></div>
+        <div class="sym-col"><h4>What to do</h4><ul><li>Small sips of cold water or ice chips if tolerated</li><li>Fresh air or a fan if helpful</li><li>Give anti-sickness medicine if prescribed</li><li>Call nurse if persistent</li></ul></div>
+        <div class="sym-col"><h4>Medicine</h4><p><strong>Haloperidol</strong> or <strong>Metoclopramide</strong> — under the skin<br><br>Your kit will have one or both — check with your nurse which to use.</p></div>
+      </div></div>
+    </div>
+
+    <div class="warn-box" style="margin-top:1.4rem;">
+      <h4>Signs that death may be very close</h4>
+      <p>In the final hours: breathing becomes very irregular with long pauses, a mottled or blotchy pattern appears on legs and feet, hands and feet turn cool while the face remains warm, the person becomes completely unresponsive. These are normal and expected. You do not need to do anything medical. Contact your nurse — they can come to be with you, or stay on the phone and guide you through what is happening.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TIMING ===== -->
+<div class="page" id="page-timing">
+  <div class="section-header">
+    <button class="back-btn" onclick="showPage('home')">← Back to home</button>
+    <h2>How to give medicines</h2>
+    <p>Your nurse will have shown you this in person. Use this as a reference — not a substitute for their instruction.</p>
+  </div>
+  <div class="content">
+    <div class="dose-tool reveal">
+      <h3>Last dose timer</h3>
+      <p class="small-note">Tap a medicine immediately after giving it. The timer helps track elapsed time and earliest next due dose. Always follow your nurse's specific instructions.</p>
+      <div class="dose-actions" id="doseActions"></div>
+      <div class="dose-log" id="doseLog"><p class="small-note">No doses logged yet.</p></div>
+      <div class="dose-export-btns">
+        <button type="button" onclick="copyDoseHistory()">📋 Copy history for nurse</button>
+        <button type="button" onclick="shareDoseHistory()">📤 Share with care team</button>
+        <button type="button" onclick="clearDoseHistory()">Clear log</button>
+      </div>
+    </div>
+
+    <div class="timing-block">
+      <h3>Injection under the skin — step by step</h3>
+      <div class="timing-row"><span class="timing-step">1</span><p>Wash hands thoroughly with soap and water for at least 20 seconds.</p></div>
+      <div class="timing-row"><span class="timing-step">2</span><p>Check: right medicine, right dose, right person. Check the expiry date on the vial.</p></div>
+      <div class="timing-row"><span class="timing-step">3</span><p>Draw up the prescribed dose from the vial using the syringe as your nurse showed you.</p></div>
+      <div class="timing-row"><span class="timing-step">4</span><p>Clean the injection site (upper outer arm or abdomen) with an alcohol swab. Let it dry completely — do not inject onto a wet swab.</p></div>
+      <div class="timing-row"><span class="timing-step">5</span><p>Gently pinch the skin. Insert the needle at a 45° angle smoothly and steadily. Inject slowly.</p></div>
+      <div class="timing-row"><span class="timing-step">6</span><p>Remove the needle. Apply gentle pressure with a cotton ball. Do not rub.</p></div>
+      <div class="timing-row"><span class="timing-step">7</span><p><strong>Record immediately:</strong> time given, which medicine, dose, reason, your initials. Your nurse needs this at every visit.</p></div>
+    </div>
+    <div class="timing-block">
+      <h3>Record every dose — what to write</h3>
+      <div class="timing-row">
+        <div class="timing-pills">
+          <span class="timing-pill">⏰ Time given</span>
+          <span class="timing-pill">💊 Medicine name</span>
+          <span class="timing-pill">📏 Dose (mg)</span>
+          <span class="timing-pill">📝 Reason</span>
+          <span class="timing-pill">✍️ Your initials</span>
+        </div>
+      </div>
+      <div class="timing-row"><p style="font-size:0.85rem;color:var(--text-muted);">Your nurse advises a minimum time between doses. Do not give another dose earlier without calling first — they can authorise it over the phone if needed.</p></div>
+    </div>
+    <div class="timing-block">
+      <h3>Rotating injection sites</h3>
+      <div class="timing-row"><span class="timing-step">↻</span><p>Alternate sites with each injection — upper outer arm (left/right), abdomen (left/right of navel). Avoid bruised, red, or broken skin. Your nurse can draw a simple rotation guide if helpful.</p></div>
+    </div>
+    <div class="warn-box">
+      <h4>Safe storage and disposal</h4>
+      <p>These are controlled medicines. Keep locked away from children and visitors at all times. After the person has died, return any unused medicines to a pharmacy — do not put them in household rubbish, flush them, or give them to anyone else.</p>
+    </div>
+    <div class="info-box">
+      <p><strong>Syringe drivers:</strong> Some patients are prescribed a syringe driver — a small pump that delivers a continuous dose of medicines under the skin over 24 hours. If one has been set up, your nurse will visit daily to check and refill it. Do not adjust the rate or touch the driver. Call your nurse if the alarm sounds or the driver stops.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SELF CARE ===== -->
+<div class="page" id="page-selfcare">
+  <div class="section-header">
+    <button class="back-btn" onclick="showPage('home')">← Back to home</button>
+    <h2>Looking after yourself</h2>
+    <p>Caring for someone at end of life is one of the most demanding things a person can do. Your wellbeing matters.</p>
+  </div>
+  <div class="content">
+
+    <div class="checklist">
+      <h3>✅ Carer readiness checklist</h3>
+      <div class="check-item"><input type="checkbox" id="c1" onchange="updateProgress()"><label for="c1">I know where the medicine kit is kept</label></div>
+      <div class="check-item"><input type="checkbox" id="c2" onchange="updateProgress()"><label for="c2">I have the palliative care nurse's number saved in my phone</label></div>
+      <div class="check-item"><input type="checkbox" id="c3" onchange="updateProgress()"><label for="c3">I know where the medicine record chart is</label></div>
+      <div class="check-item"><input type="checkbox" id="c4" onchange="updateProgress()"><label for="c4">I know the person's end-of-life wishes and whether an Advance Care Directive exists</label></div>
+      <div class="check-item"><input type="checkbox" id="c5" onchange="updateProgress()"><label for="c5">I have practised drawing up and giving an injection under the skin with my nurse</label></div>
+      <div class="check-item"><input type="checkbox" id="c6" onchange="updateProgress()"><label for="c6">I know which medicines are in the kit and what each is for</label></div>
+      <div class="check-item"><input type="checkbox" id="c7" onchange="updateProgress()"><label for="c7">I have asked my nurse what physical changes to expect as the illness progresses</label></div>
+      <div class="check-item"><input type="checkbox" id="c8" onchange="updateProgress()"><label for="c8">I have other family or friends who can take shifts so I can rest</label></div>
+      <div class="checklist-progress">
+        <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+        <p class="progress-text" id="progressText">0 of 8 complete</p>
+      </div>
+    </div>
+
+    <div class="care-card"><h3>🧠 It is okay to feel overwhelmed</h3><p>Fear, grief, exhaustion, and doubt are all normal. Feeling frightened before giving a medicine, or uncertain whether you are doing the right thing, does not mean you are failing. It means you are paying attention — and that is exactly what the person you love needs.</p></div>
+    <div class="care-card"><h3>🛌 Sleep when you can</h3><p>Caring through the night is exhausting. Ask family or friends to take shifts. Some palliative care services can arrange overnight volunteer sitters — ask your nurse whether this is available in your area.</p></div>
+    <div class="care-card"><h3>📞 Support contacts</h3><ul><li><strong>Your palliative care nurse</strong> — they expect your calls day and night. You are not bothering them.</li><li><strong>Griefline:</strong> 1300 845 745 — anticipatory grief support, evenings and weekends</li><li><strong>Carer Gateway:</strong> 1800 422 737 — practical support, emergency respite, carer navigation</li><li><strong>Healthdirect:</strong> 1800 022 222 — free 24/7 nurse advice</li></ul></div>
+    <div class="care-card"><h3>🕊 After the death</h3><p>There is no immediate rush. Take time to sit with them. When ready, call your palliative care nurse or GP — <strong>not 000</strong> — unless there is something unexpected. Calling 000 for an expected death can trigger processes the person would not have wanted.</p></div>
+
+    <button class="print-card-btn" onclick="printEmergencyCard()">🖨️ Print emergency contacts card</button>
+  </div>
+</div>
+
+<!-- ===== EMERGENCY ===== -->
+<div class="page" id="page-emergency">
+  <div class="emergency-hero">
+    <h2>Get help now</h2>
+    <p>If you are unsure — call. You are not expected to handle this alone.</p>
+  </div>
+  <div class="content">
+    <div class="warn-box">
+      <h4>Before calling 000 — important</h4>
+      <p>Calling 000 for a palliative care patient at home can trigger resuscitation attempts — even if the person has clearly said they do not want this. <strong>Call your palliative care nurse or GP first in almost every situation.</strong> Call 000 only for emergencies genuinely outside the expected course of illness, or if anyone is in immediate danger.</p>
+    </div>
+    <div class="emergency-number"><a href="tel:000" class="num emergency-link">📞 000</a><div><h3>Ambulance / Police / Fire</h3><p>Last resort in palliative care — call your nurse first whenever possible.</p></div></div>
+    <div class="emergency-number"><a href="tel:1800022222" class="num emergency-link">📞 1800 022 222</a><div><h3>Healthdirect Australia</h3><p>Free 24/7 registered nurse advice. Good first call when you cannot reach your palliative nurse and are unsure whether something needs urgent attention.</p></div></div>
+    <div class="emergency-number"><a href="tel:131126" class="num emergency-link">📞 13 11 26</a><div><h3>Poisons Information Centre</h3><p>Call immediately if concerned about a wrong dose or accidental medicine exposure.</p></div></div>
+    <div class="emergency-number"><a href="tel:1300845745" class="num emergency-link">📞 1300 845 745</a><div><h3>Griefline</h3><p>Grief and loss support — including anticipatory grief while you are still caring. Evenings and weekends.</p></div></div>
+    <div class="emergency-number"><a href="tel:1800422737" class="num emergency-link">📞 1800 422 737</a><div><h3>Carer Gateway</h3><p>Practical carer support, emergency respite, and help navigating services across Australia.</p></div></div>
+    <div class="emergency-number"><a href="tel:131114" class="num emergency-link">📞 13 11 14</a><div><h3>Lifeline</h3><p>24/7 crisis support and suicide prevention. For carers experiencing overwhelming distress.</p></div></div>
+    <div class="contacts-note">
+      <h4>Your personal care team — saved on this device</h4>
+      <div class="contact-line"><span>Palliative care nurse</span><input type="tel" class="contact-input" id="contact-nurse" placeholder="Name & number" oninput="saveContacts()"></div>
+      <div class="contact-line"><span>GP / after hours</span><input type="tel" class="contact-input" id="contact-gp" placeholder="Number" oninput="saveContacts()"></div>
+      <div class="contact-line"><span>Pharmacist</span><input type="text" class="contact-input" id="contact-pharm" placeholder="Name & number" oninput="saveContacts()"></div>
+      <div class="contact-line"><span>Other family contact</span><input type="tel" class="contact-input" id="contact-family" placeholder="Number" oninput="saveContacts()"></div>
+      <p class="contact-save-note">Numbers save automatically. Use the button below to print a fridge card.</p>
+    </div>
+    <button class="print-card-btn" onclick="printEmergencyCard()">🖨️ Print this emergency card</button>
+  </div>
+</div>
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar">
+  <p>If unsure about a medicine or symptom — call your nurse first.</p>
+  <div class="bottom-bar-actions">
+    <button onclick="openSearch()">🔍 Search</button>
+    <button class="btn-emergency" onclick="showPage('emergency')">📞 Help now</button>
+  </div>
+</div>
+
+<button class="back-top-btn" id="backTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">↑</button>
+<div class="bookmark-prompt" id="bookmarkPrompt">
+  <p>Save this guide for quick access during urgent moments.</p>
+  <div class="bookmark-actions">
+    <button class="primary" onclick="dismissBookmarkPrompt()">Got it</button>
+    <button onclick="bookmarkHelp()">How to bookmark</button>
+  </div>
+</div>
+
+
+<a href="#" class="call-nurse-cta" id="callNurseCta">📞 Call my nurse</a>
+<div class="toast" id="toast" role="status"></div>
+
+<div class="print-page" id="printPage" aria-hidden="true">
+  <div class="print-card">
+    <h1>Caring at Home — Emergency Card</h1>
+    <p class="print-sub">Keep on the fridge. Call your palliative nurse first when unsure.</p>
+    <div class="print-warn"><strong>Before 000:</strong> In palliative care at home, call your nurse or GP first unless someone is in immediate danger.</div>
+    <h2>National numbers</h2>
+    <div class="print-row"><span>000 — Ambulance</span><span>Last resort</span></div>
+    <div class="print-row"><span>Healthdirect</span><span>1800 022 222</span></div>
+    <div class="print-row"><span>Poisons</span><span>13 11 26</span></div>
+    <div class="print-row"><span>Griefline</span><span>1300 845 745</span></div>
+    <div class="print-row"><span>Carer Gateway</span><span>1800 422 737</span></div>
+    <div class="print-row"><span>Lifeline</span><span>13 11 14</span></div>
+    <h2>Your care team</h2>
+    <div class="print-personal" id="printPersonalContacts">
+      <div>Nurse: —</div><div>GP: —</div><div>Pharmacist: —</div><div>Family: —</div>
+    </div>
+    <p class="print-sub" style="margin-top:1rem;">PHAR4941 · University of Sydney · Educational resource only</p>
+  </div>
+</div>
+
+<footer>
+  <p><strong>Caring at Home — Medicines Guide</strong><br>
+  For family carers supporting a loved one in home-based palliative care. Supplements, but does not replace, the advice of your palliative care team.<br><br>
+  Educational resource · PHAR4941, University of Sydney, 2026.</p>
+</footer>
+
+<script>
+// ---- SEARCH INDEX ----
+const searchIndex = [
+  { page:'medicines', title:'Morphine', tag:'Medicine', text:'Pain breathlessness strong pain medicine under the skin injection when needed dose grimacing moaning restless hurt aching' },
+  { page:'medicines', title:'Midazolam', tag:'Medicine', text:'Anxiety agitation seizure panic restless scared frightened calming medicine under the skin sleepy' },
+  { page:'medicines', title:'Haloperidol', tag:'Medicine', text:'Confusion nausea hallucination disoriented not recognising sick throwing up' },
+  { page:'medicines', title:'Hyoscine butylbromide', tag:'Medicine', text:'Noisy breathing death rattle secretions gurgling rattling gurgle rattle under the skin' },
+  { page:'medicines', title:'Fentanyl patch', tag:'Medicine', text:'Fentanyl patch pain continuous steady pain relief 72 hours skin patch' },
+  { page:'medicines', title:'Metoclopramide', tag:'Medicine', text:'Nausea vomiting sick throw up retching stomach not emptying anti sickness metoclopramide bowel' },
+  { page:'medicines', title:'Clonazepam', tag:'Medicine', text:'Anxiety agitation muscle jerks seizure scared under tongue calming' },
+  { page:'medicines', title:'Glycopyrronium', tag:'Medicine', text:'Secretions noisy breathing death rattle gurgle alternative hyoscine' },
+  { page:'medicines', title:'Dexamethasone', tag:'Medicine', text:'Dexamethasone swelling inflammation appetite nausea brain tumour breathlessness' },
+  { page:'symptoms', title:'Pain', tag:'Symptom', text:'Pain grimacing moaning restless morphine distress hurt sore' },
+  { page:'symptoms', title:'Agitation', tag:'Symptom', text:'Agitation anxiety restless picking bedclothes frightened crying scared midazolam' },
+  { page:'symptoms', title:'Noisy breathing', tag:'Symptom', text:'Noisy breathing death rattle gurgling gurgle rattle secretions positioning hyoscine' },
+  { page:'symptoms', title:'Confusion', tag:'Symptom', text:'Confusion hallucination disoriented not recognising haloperidol' },
+  { page:'symptoms', title:'Nausea and vomiting', tag:'Symptom', text:'Nausea vomiting sick throw up retching haloperidol metoclopramide' },
+  { page:'symptoms', title:'Signs of approaching death', tag:'Symptom', text:'Dying approaching death mottled breathing irregular unresponsive cool hands feet final hours' },
+  { page:'timing', title:'How to give an injection under the skin', tag:'Guide', text:'Injection under the skin how to give step by step technique syringe needle skin' },
+  { page:'timing', title:'Recording medicines', tag:'Guide', text:'Record chart document time dose reason initials medicine administration log' },
+  { page:'timing', title:'Syringe driver', tag:'Guide', text:'Syringe driver pump continuous under the skin 24 hours alarm refill' },
+  { page:'timing', title:'Safe storage and disposal', tag:'Guide', text:'Storage disposal controlled medicine locked return pharmacy waste' },
+  { page:'selfcare', title:'Looking after yourself as a carer', tag:'Carer support', text:'Carer support self care overwhelmed exhausted grief sleep rest wellbeing' },
+  { page:'selfcare', title:'Carer readiness checklist', tag:'Carer support', text:'Checklist ready prepared advance care directive nurse number kit' },
+  { page:'emergency', title:'Calling 000', tag:'Emergency', text:'000 ambulance emergency when to call palliative' },
+  { page:'emergency', title:'Healthdirect 1800 022 222', tag:'Emergency', text:'Healthdirect nurse advice 24 7 health line phone' },
+  { page:'emergency', title:'Poisons Information Centre 13 11 26', tag:'Emergency', text:'Poisons wrong dose accidental overdose medicine 13 11 26' },
+  { page:'emergency', title:'Griefline 1300 845 745', tag:'Emergency', text:'Griefline grief loss carer support phone anticipatory bereavement' },
+  { page:'emergency', title:'Carer Gateway 1800 422 737', tag:'Emergency', text:'Carer gateway support respite practical help' },
+];
+const searchSynonyms = {
+  sick: ['nausea', 'vomit', 'vomiting', 'unwell', 'nauseated'],
+  nausea: ['sick', 'vomit', 'throw', 'retching'],
+  vomit: ['vomiting', 'nausea', 'throw', 'sick', 'retching'],
+  throwing: ['vomit', 'vomiting', 'nausea', 'sick'],
+  throw: ['vomit', 'vomiting', 'nausea', 'sick'],
+  gurgle: ['noisy', 'breathing', 'rattle', 'secretions', 'gurgling'],
+  gurgling: ['noisy', 'breathing', 'rattle', 'secretions', 'gurgle'],
+  rattle: ['noisy', 'breathing', 'secretions', 'gurgle', 'death'],
+  rattling: ['noisy', 'breathing', 'secretions', 'gurgle'],
+  scared: ['anxiety', 'agitation', 'panic', 'frightened', 'midazolam'],
+  frightened: ['anxiety', 'agitation', 'scared', 'panic'],
+  pain: ['morphine', 'grimacing', 'moaning', 'hurt', 'ache', 'sore'],
+  hurt: ['pain', 'morphine', 'grimacing'],
+  injection: ['under', 'skin', 'syringe', 'needle', 'give'],
+  inject: ['under', 'skin', 'syringe', 'needle'],
+  wrong: ['poisons', 'overdose', 'dose', 'accidental'],
+  dying: ['death', 'approaching', 'unresponsive', 'final'],
+  choke: ['noisy', 'breathing', 'gurgle', 'rattle'],
+  choking: ['noisy', 'breathing', 'gurgle'],
+};
+
+function expandSearchTerms(raw) {
+  const terms = raw.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  const expanded = new Set(terms);
+  const phrase = raw.toLowerCase().trim();
+  Object.keys(searchSynonyms).forEach(key => {
+    if (phrase.includes(key)) searchSynonyms[key].forEach(s => expanded.add(s));
+  });
+  terms.forEach(t => {
+    if (searchSynonyms[t]) searchSynonyms[t].forEach(s => expanded.add(s));
+  });
+  return { rawTerms: terms, expanded: [...expanded] };
+}
+
+function termMatchesHaystack(term, haystack, expanded) {
+  if (haystack.includes(term)) return true;
+  const syns = searchSynonyms[term] || [];
+  return syns.some(s => haystack.includes(s));
+}
+
+
+function openSearch() {
+  document.getElementById('searchOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('searchInput').focus(), 100);
+}
+function closeSearchPanel() {
+  document.getElementById('searchOverlay').classList.remove('open');
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchResults').innerHTML = '';
+}
+function closeSearch(e) { if(e.target === document.getElementById('searchOverlay')) closeSearchPanel(); }
+
+function runSearch(q) {
+  const container = document.getElementById('searchResults');
+  if (!q.trim()) { container.innerHTML = ''; return; }
+  const { rawTerms, expanded } = expandSearchTerms(q);
+  const scored = searchIndex.map(item => {
+    const haystack = (item.title + ' ' + item.text + ' ' + item.tag).toLowerCase();
+    let score = 0;
+    rawTerms.forEach(term => {
+      if (haystack.includes(term)) score += 4;
+      else if (termMatchesHaystack(term, haystack, expanded)) score += 2;
+    });
+    expanded.forEach(term => { if (haystack.includes(term)) score += 1; });
+    const ok = rawTerms.length === 0 || rawTerms.every(term => termMatchesHaystack(term, haystack, expanded));
+    return { item, score, ok };
+  }).filter(x => x.ok && x.score > 0).sort((a, b) => b.score - a.score);
+  if (!scored.length) {
+    container.innerHTML = '<div class="search-no-results">No results found. Try: gurgling, throwing up, scared, injection</div>';
+    return;
+  }
+  container.innerHTML = scored.slice(0, 8).map(({ item: r }) => `
+    <div class="search-result-item" onclick="goToResult('${r.page}')">
+      <div class="result-tag">${r.tag}</div>
+      <h4>${r.title}</h4>
+      <p>${r.text.slice(0, 80)}...</p>
+    </div>
+  `).join('');
+}
+function goToResult(page) {
+  closeSearchPanel();
+  showPage(page);
+}
+
+// ---- NAV ----
+let currentPage = 'home';
+function showPage(id) {
+  if (id === currentPage) return;
+  const current = document.getElementById('page-' + currentPage);
+  if (current) {
+    current.classList.remove('active');
+    current.classList.add('leaving');
+    setTimeout(() => current.classList.remove('leaving'), 190);
+  }
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-links button:not(.search-trigger):not(.emergency-btn)').forEach(b => b.classList.remove('active'));
+  const page = document.getElementById('page-' + id);
+  if (page) page.classList.add('active');
+  const btn = document.getElementById('nav-' + id);
+  if (btn) btn.classList.add('active');
+  currentPage = id;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // close mobile nav
+  document.getElementById('navLinks').classList.remove('open');
+}
+function toggleNav() {
+  document.getElementById('navLinks').classList.toggle('open');
+}
+
+// ---- MEDICINE CARDS ----
+function toggleCard(id) { document.getElementById(id).classList.toggle('open'); }
+
+// ---- DRUG FILTER ----
+function filterDrugs(cat, btn) {
+  document.querySelectorAll('.drug-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.med-card[data-category]').forEach(card => {
+    if (cat === 'all') { card.classList.remove('hidden'); }
+    else {
+      const cats = card.getAttribute('data-category').split(' ');
+      card.classList.toggle('hidden', !cats.includes(cat));
+    }
+  });
+  applyKitFilter();
+}
+
+// ---- SYMPTOM CHECKER ----
+const scData = {
+  pain: { urgency:'urgency-high', label:'Give medicine / Call nurse', title:'Pain', steps:['Try repositioning the person first','Speak calmly and hold their hand','Give the prescribed morphine dose under the skin','If no improvement within 30 minutes — call your nurse','Do not give a second dose sooner than advised'] },
+  agitation: { urgency:'urgency-high', label:'Call nurse first', title:'Agitation / Restlessness', steps:['Stay present — your calm voice and gentle touch genuinely help','Keep the room quiet and dimly lit','Call your palliative care nurse before giving midazolam for the first time','Give midazolam under the skin if your nurse advises'] },
+  breathing: { urgency:'urgency-med', label:'Position first, then medicine', title:'Noisy breathing', steps:['Gently turn the person onto their side — do this first','Wipe inside the mouth with a damp cloth','If still noisy after a few minutes, give hyoscine or glycopyrronium as prescribed','Remember: they are not in distress from this sound, even though it is hard to hear'] },
+  confusion: { urgency:'urgency-med', label:'Observe / call if distressing', title:'Confusion', steps:['Stay calm — do not argue or correct them','Use their name and speak slowly and gently','Keep familiar faces and objects nearby','If they are visibly distressed, call your nurse — haloperidol may help'] },
+  nausea: { urgency:'urgency-med', label:'Manage / call nurse', title:'Nausea and vomiting', steps:['Offer small sips of cold water or ice chips if tolerated','Try fresh air or a gentle fan','Give anti-sickness medicine (haloperidol or metoclopramide) as prescribed','Call nurse if persistent or unable to keep anything down'] },
+  unresponsive: { urgency:'urgency-low', label:'This is expected — call your nurse', title:'Unresponsive', steps:['This is a normal part of the dying process — do not be alarmed','The person can likely still hear you — continue talking to them','Keep their mouth moist with a damp cloth','Call your palliative care nurse — they can come to be with you','Do NOT call 000 unless something unexpected has happened'] },
+};
+
+function showSymptomResult(type) {
+  const d = scData[type];
+  const el = document.getElementById('sc-result');
+  el.innerHTML = `
+    <span class="sc-urgency ${d.urgency}">${d.label}</span>
+    <h4>${d.title}</h4>
+    <ul>${d.steps.map(s => `<li>${s}</li>`).join('')}</ul>
+  `;
+  el.classList.add('show');
+  document.querySelectorAll('.sc-option').forEach(o => o.classList.remove('selected'));
+  const selectedBtn = document.querySelector(`.sc-option[onclick="showSymptomResult('${type}')"]`);
+  if (selectedBtn) selectedBtn.classList.add('selected');
+}
+
+// ---- QUIZ ----
+const quizData = [
+  {
+    q: "Your loved one is grimacing and groaning. You have repositioned them but they are still clearly uncomfortable. What do you do?",
+    options:["Call 000 immediately","Give the prescribed morphine dose and monitor for 30 minutes","Wait until the morning to call the GP","Give them an extra dose of all medicines"],
+    correct: 1,
+    feedback: { correct:"Correct. Repositioning first, then morphine for persistent pain — and calling your nurse if there is no improvement within 30 minutes.", wrong:"The right approach is to give the prescribed morphine dose and monitor. Call 000 is not appropriate here — call your palliative care nurse if morphine does not help." }
+  },
+  {
+    q: "You hear a loud gurgling sound when your loved one breathes. They are unresponsive. What should you do first?",
+    options:["Call 000 — they are choking","Give hyoscine immediately","Gently turn them onto their side first","Start CPR"],
+    correct: 2,
+    feedback: { correct:"Correct. Repositioning onto their side is always the first step. This alone often reduces the sound without any medicine needed. Hyoscine can be given if it persists.", wrong:"Repositioning first is the right first step. This is not an emergency requiring 000 — noisy breathing near end of life is expected. The person is not choking and is not in distress." }
+  },
+  {
+    q: "Your loved one is picking at their bedclothes and seems very frightened. Reassurance is not helping. What is the next step?",
+    options:["Restrain them gently so they don't fall","Call your palliative care nurse before giving any medicine","Give morphine because they may be in pain","Give them a glass of water and wait"],
+    correct: 1,
+    feedback: { correct:"Correct. For agitation, call your nurse first — especially the first time — before giving midazolam. They can confirm what you are seeing warrants it and guide you through.", wrong:"For a first episode of agitation, calling your palliative care nurse before giving any medicine is the right approach. They can confirm midazolam is appropriate and walk you through it." }
+  },
+  {
+    q: "Your loved one has died at home — expected, in their own bed. What should you do?",
+    options:["Call 000 immediately","Call your palliative care nurse or GP first","Begin CPR","Call the funeral home immediately"],
+    correct: 1,
+    feedback: { correct:"Correct. For an expected death at home, call your palliative care nurse or GP first. There is no rush — you can take time to sit with them. Calling 000 can trigger processes the person would not have wanted.", wrong:"For an expected home death, call your palliative care nurse or GP — not 000. Calling 000 can trigger resuscitation attempts that the person may have specifically wished to avoid." }
+  },
+  {
+    q: "You have some morphine left over after your loved one has passed. What should you do with it?",
+    options:["Pour it down the sink","Put it in the household bin","Keep it in case you need it later","Return it to a pharmacy"],
+    correct: 3,
+    feedback: { correct:"Correct. All unused controlled medicines must be returned to a pharmacy. They cannot be disposed of in household bins or drains — and should never be kept or given to others.", wrong:"Unused controlled medicines (morphine, midazolam etc.) must be returned to a pharmacy. They cannot legally or safely be disposed of at home." }
+  }
+];
+
+let currentQ = 0, score = 0, answered = [];
+let quizOrder = [];
+
+function shuffle(array) {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function renderQuiz() {
+  const container = document.getElementById('quiz-container');
+  if (currentQ >= quizOrder.length) {
+    container.innerHTML = '';
+    const scoreEl = document.getElementById('quiz-score');
+    scoreEl.classList.add('show');
+    document.getElementById('score-display').textContent = score + '/' + quizOrder.length;
+    const msgs = ['Keep going — reviewing this guide will help.','Good effort! Re-read the sections you found tricky.','Well done — you are well prepared.','Excellent — you have a strong understanding of what to do.','Perfect score — you are very well prepared.'];
+    document.getElementById('score-msg').textContent = msgs[score] || msgs[4];
+    return;
+  }
+  const q = quizOrder[currentQ];
+  container.innerHTML = `
+    <div class="quiz-card">
+      <div class="q-label">Scenario ${currentQ+1} of ${quizOrder.length}</div>
+      <h3>${q.q}</h3>
+      <div class="quiz-options">
+        ${q.options.map((o,i) => `<button class="quiz-option" onclick="answerQ(${i})" id="qopt-${i}">${o}</button>`).join('')}
+      </div>
+      <div class="quiz-feedback" id="quiz-feedback"></div>
+      <button class="quiz-next" id="quiz-next" onclick="nextQ()">${currentQ < quizOrder.length-1 ? 'Next scenario →' : 'See my score'}</button>
+    </div>
+  `;
+}
+
+function answerQ(idx) {
+  const q = quizOrder[currentQ];
+  const correct = idx === q.correct;
+  if (correct) score++;
+  document.querySelectorAll('.quiz-option').forEach((btn, i) => {
+    btn.classList.add('disabled');
+    if (i === q.correct) btn.classList.add('correct');
+    else if (i === idx && !correct) btn.classList.add('wrong');
+  });
+  const fb = document.getElementById('quiz-feedback');
+  fb.textContent = correct ? '✓ ' + q.feedback.correct : '✗ ' + q.feedback.wrong;
+  fb.className = 'quiz-feedback show ' + (correct ? 'correct' : 'wrong');
+  document.getElementById('quiz-next').classList.add('show');
+}
+
+function nextQ() { currentQ++; renderQuiz(); }
+
+function resetQuiz() {
+  currentQ = 0; score = 0;
+  quizOrder = shuffle(quizData);
+  document.getElementById('quiz-score').classList.remove('show');
+  renderQuiz();
+}
+
+// ---- CHECKLIST PROGRESS ----
+function updateProgress() {
+  const checkboxes = document.querySelectorAll('.checklist input[type=checkbox]');
+  const checked = [...checkboxes].filter(c => c.checked).length;
+  const pct = Math.round((checked / checkboxes.length) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = checked + ' of ' + checkboxes.length + ' complete';
+}
+
+// ---- INTERACTION CHECKER ----
+const interactionMedicines = [
+  'morphine', 'fentanyl', 'midazolam', 'clonazepam', 'haloperidol',
+  'metoclopramide', 'hyoscine', 'glycopyrronium', 'dexamethasone'
+];
+const interactionLabels = {
+  morphine: 'Morphine', fentanyl: 'Fentanyl patch', midazolam: 'Midazolam', clonazepam: 'Clonazepam',
+  haloperidol: 'Haloperidol', metoclopramide: 'Metoclopramide', hyoscine: 'Hyoscine', glycopyrronium: 'Glycopyrronium',
+  dexamethasone: 'Dexamethasone'
+};
+const interactionRules = [
+  { meds: ['morphine', 'midazolam'], msg: 'Morphine + midazolam: together these can make the person very sleepy and breathing slower. Discuss with your nurse before giving close together.' },
+  { meds: ['morphine', 'clonazepam'], msg: 'Morphine + clonazepam: both can increase sleepiness and the risk of falls. Check with your nurse.' },
+  { meds: ['midazolam', 'clonazepam'], msg: 'Midazolam + clonazepam: two calming medicines together may cause too much sleepiness. Your nurse will say which to use.' },
+  { meds: ['morphine', 'fentanyl'], msg: 'Morphine + fentanyl patch: both are strong pain medicines. Your nurse manages doses carefully — call before changing either.' },
+  { meds: ['haloperidol', 'metoclopramide'], msg: 'Haloperidol + metoclopramide: using both for sickness may cause muscle stiffness or restlessness. Ask which one your plan uses.' },
+  { meds: ['hyoscine', 'glycopyrronium'], msg: 'You usually only have one medicine for noisy breathing. If both are ticked, double-check your kit with your nurse.' }
+];
+
+function initInteractionChecker() {
+  const wrap = document.getElementById('interactionList');
+  if (!wrap) return;
+  wrap.innerHTML = interactionMedicines.map(m => `
+    <label><input type="checkbox" value="${m}" onchange="updateInteractions()"> ${interactionLabels[m]}</label>
+  `).join('');
+}
+
+function updateInteractions() {
+  const picked = new Set([...document.querySelectorAll('#interactionList input:checked')].map(i => i.value));
+  const alerts = interactionRules.filter(rule => rule.meds.every(m => picked.has(m)));
+  const out = document.getElementById('interactionAlerts');
+  if (!alerts.length) {
+    out.innerHTML = '<div class="interaction-ok">No highlighted combinations selected. Still confirm every medicine plan with your nurse.</div>';
+    return;
+  }
+  out.innerHTML = alerts.map(a => `<div class="interaction-alert">⚠️ ${a.msg}<br>Discuss before giving together.</div>`).join('');
+}
+
+// ---- LAST DOSE TIMER ----
+const doseScheduleHours = { morphine: 4, fentanyl: 72, midazolam: 4, clonazepam: 6, haloperidol: 6, metoclopramide: 6, hyoscine: 4, glycopyrronium: 4, dexamethasone: 24 };
+let doseHistory = [];
+
+function migrateDoseLog() {
+  const legacy = localStorage.getItem('dose-log');
+  const modern = localStorage.getItem('dose-history');
+  if (modern) {
+    try { doseHistory = JSON.parse(modern); } catch (e) { doseHistory = []; }
+    return;
+  }
+  if (legacy) {
+    try {
+      const obj = JSON.parse(legacy);
+      doseHistory = Object.entries(obj).map(([med, at]) => ({ med, at, doseMg: '', reason: '', initials: '' }));
+      saveDoseHistory();
+      localStorage.removeItem('dose-log');
+    } catch (e) { doseHistory = []; }
+  }
+}
+
+function saveDoseHistory() {
+  localStorage.setItem('dose-history', JSON.stringify(doseHistory.slice(-80)));
+}
+
+function initDoseTool() {
+  const actions = document.getElementById('doseActions');
+  if (!actions) return;
+  const kit = getSavedKit();
+  const meds = kit.length ? kit.filter(m => interactionMedicines.includes(m)) : interactionMedicines;
+  actions.innerHTML = meds.map(m => `<button class="dose-action" onclick="markDose('${m}')">${interactionLabels[m]}</button>`).join('');
+  migrateDoseLog();
+  renderDoseLog();
+  setInterval(renderDoseLog, 60000);
+}
+
+function markDose(med) {
+  doseHistory.push({ med, at: Date.now(), doseMg: '', reason: '', initials: '' });
+  saveDoseHistory();
+  renderDoseLog();
+  showToast('Recorded: ' + interactionLabels[med]);
+}
+
+function formatSince(ts) {
+  const mins = Math.max(0, Math.floor((Date.now() - ts) / 60000));
+  if (mins < 60) return mins + ' min ago';
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return h + 'h ' + m + 'm ago';
+}
+
+function formatDateTime(ts) {
+  return new Date(ts).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+
+function getLatestByMed() {
+  const latest = {};
+  [...doseHistory].sort((a, b) => a.at - b.at).forEach(e => { latest[e.med] = e; });
+  return latest;
+}
+
+function renderDoseLog() {
+  const log = document.getElementById('doseLog');
+  if (!log) return;
+  if (!doseHistory.length) {
+    log.innerHTML = '<p class="small-note">No doses logged yet. Tap a medicine right after you give it.</p>';
+    return;
+  }
+  const recent = [...doseHistory].sort((a, b) => b.at - a.at).slice(0, 12);
+  const latest = getLatestByMed();
+  let html = '';
+  Object.keys(latest).forEach(med => {
+    const e = latest[med];
+    const due = new Date(e.at + (doseScheduleHours[med] || 4) * 3600000);
+    html += '<div class="dose-log-item"><strong>' + interactionLabels[med] + '</strong><span>Last: ' + formatSince(e.at) + '<br>Guide — earliest next: ' + due.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + '</span></div>';
+  });
+  html += '<p class="small-note" style="margin-top:0.75rem;">Recent entries</p>';
+  recent.forEach(e => {
+    html += '<div class="dose-history-item"><strong>' + interactionLabels[e.med] + '</strong> — ' + formatDateTime(e.at) + '</div>';
+  });
+  log.innerHTML = html.replace(/<\/motion>/g, '</div>');
+}
+
+function buildDoseExportText() {
+  const lines = ['Caring at Home — medicine log', 'Generated: ' + new Date().toLocaleString(), ''];
+  if (!doseHistory.length) lines.push('No doses recorded in this app yet.');
+  [...doseHistory].sort((a, b) => b.at - a.at).forEach(e => {
+    const due = new Date(e.at + (doseScheduleHours[e.med] || 4) * 3600000);
+    lines.push(interactionLabels[e.med] + ' — given ' + formatDateTime(e.at) + ' (' + formatSince(e.at) + ')');
+    lines.push('  Guide — earliest next dose: ' + due.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+  });
+  lines.push('', 'Carer-recorded in app. Confirm all dosing with your palliative care team.');
+  return lines.join('\n');
+}
+
+function copyDoseHistory() {
+  const text = buildDoseExportText();
+  navigator.clipboard.writeText(text).then(() => showToast('Copied for your nurse')).catch(() => {
+    prompt('Copy this text:', text);
+  });
+}
+
+function shareDoseHistory() {
+  const text = buildDoseExportText();
+  if (navigator.share) {
+    navigator.share({ title: 'Medicine log', text }).catch(() => {});
+  } else {
+    copyDoseHistory();
+  }
+}
+
+function clearDoseHistory() {
+  if (confirm('Clear all logged doses on this device?')) {
+    doseHistory = [];
+    saveDoseHistory();
+    renderDoseLog();
+    showToast('Log cleared');
+  }
+}
+
+// ---- CONTACTS & PRINT ----
+function saveContacts() {
+  const data = {
+    nurse: document.getElementById('contact-nurse')?.value || '',
+    gp: document.getElementById('contact-gp')?.value || '',
+    pharm: document.getElementById('contact-pharm')?.value || '',
+    family: document.getElementById('contact-family')?.value || ''
+  };
+  localStorage.setItem('carer-contacts', JSON.stringify(data));
+  updatePrintPersonalContacts();
+  updateCallNurseCta();
+}
+
+function loadContacts() {
+  const raw = localStorage.getItem('carer-contacts');
+  if (!raw) return;
+  try {
+    const d = JSON.parse(raw);
+    const set = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+    set('contact-nurse', d.nurse);
+    set('contact-gp', d.gp);
+    set('contact-pharm', d.pharm);
+    set('contact-family', d.family);
+  } catch (e) {}
+  updatePrintPersonalContacts();
+  updateCallNurseCta();
+}
+
+function parseTel(value) {
+  const digits = (value || '').replace(/\D/g, '');
+  return digits.length >= 8 ? digits : '';
+}
+
+function updatePrintPersonalContacts() {
+  const el = document.getElementById('printPersonalContacts');
+  if (!el) return;
+  const raw = localStorage.getItem('carer-contacts');
+  const d = raw ? JSON.parse(raw) : {};
+  el.innerHTML = '<div>Nurse: ' + (d.nurse || '—') + '</div><div>GP: ' + (d.gp || '—') + '</div><div>Pharmacist: ' + (d.pharm || '—') + '</div><div>Family: ' + (d.family || '—') + '</div>';
+
+}
+
+function printEmergencyCard() {
+  updatePrintPersonalContacts();
+  window.print();
+}
+
+function initCallNurseCta() {
+  const cta = document.getElementById('callNurseCta');
+  if (!cta || cta.dataset.bound) return;
+  cta.dataset.bound = '1';
+  cta.addEventListener('click', e => {
+    if (!cta.href || cta.href === '#' || cta.href.endsWith('#')) {
+      e.preventDefault();
+      showPage('emergency');
+    }
+  });
+}
+
+function updateCallNurseCta() {
+  const cta = document.getElementById('callNurseCta');
+  if (!cta) return;
+  const raw = localStorage.getItem('carer-contacts');
+  if (!raw) { cta.classList.remove('show'); return; }
+  const d = JSON.parse(raw);
+  const tel = parseTel(d.nurse);
+  if (!tel) { cta.classList.remove('show'); return; }
+  const label = d.nurse.replace(/\d[\d\s\-()]+/g, '').trim() || 'my nurse';
+  cta.href = 'tel:' + tel;
+  cta.textContent = '📞 Call ' + (label.length > 24 ? 'my nurse' : label);
+  cta.classList.add('show');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ---- PERSONALISED KIT ----
+let kitFilterActive = false;
+
+function initKitSetup() {
+  const grid = document.getElementById('kitGrid');
+  if (!grid) return;
+  grid.innerHTML = interactionMedicines.map(m =>
+    '<label><input type="checkbox" value="' + m + '" class="kit-check"> ' + interactionLabels[m] + '</label>'
+  ).join('');
+  const saved = getSavedKit();
+  if (saved.length) {
+    document.querySelectorAll('.kit-check').forEach(cb => { cb.checked = saved.includes(cb.value); });
+    kitFilterActive = true;
+    applyKitFilter();
+    syncInteractionFromKit(saved);
+  }
+}
+
+function getSavedKit() {
+  try {
+    const k = JSON.parse(localStorage.getItem('carer-kit') || '[]');
+    return Array.isArray(k) ? k : [];
+  } catch (e) { return []; }
+}
+
+function saveKitSelection() {
+  const picked = [...document.querySelectorAll('.kit-check:checked')].map(c => c.value);
+  if (!picked.length) { alert('Please tick at least one medicine in your kit.'); return; }
+  localStorage.setItem('carer-kit', JSON.stringify(picked));
+  kitFilterActive = true;
+  applyKitFilter();
+  syncInteractionFromKit(picked);
+  initDoseTool();
+  showToast('Kit saved — showing your medicines');
+}
+
+function selectAllKit() {
+  document.querySelectorAll('.kit-check').forEach(c => { c.checked = true; });
+}
+
+function showAllMeds() {
+  kitFilterActive = false;
+  document.querySelectorAll('.med-card[data-med]').forEach(c => c.classList.remove('kit-hidden'));
+  showToast('Showing all medicines');
+}
+
+function applyKitFilter() {
+  if (!kitFilterActive) return;
+  const kit = getSavedKit();
+  if (!kit.length) return;
+  document.querySelectorAll('.med-card[data-med]').forEach(card => {
+    const med = card.getAttribute('data-med');
+    card.classList.toggle('kit-hidden', !kit.includes(med));
+  });
+}
+
+function syncInteractionFromKit(meds) {
+  document.querySelectorAll('#interactionList input').forEach(inp => {
+    inp.checked = meds.includes(inp.value);
+  });
+  updateInteractions();
+}
+
+// ---- SCROLL EFFECTS & BACK TOP ----
+function initReveal() {
+  document.querySelectorAll('.tile, .stat, .quiz-section, .symptom-card, .timing-block, .care-card, .checklist, .emergency-number, .warn-box, .info-box, .contacts-note').forEach(el => {
+    if (!el.classList.contains('reveal')) el.classList.add('reveal');
+  });
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+}
+
+function handleBackTop() {
+  document.getElementById('backTopBtn').classList.toggle('show', window.scrollY > 360);
+}
+
+// ---- BOOKMARK & PWA ----
+function dismissBookmarkPrompt() {
+  localStorage.setItem('bookmark-dismissed', '1');
+  document.getElementById('bookmarkPrompt').classList.remove('show');
+}
+
+function bookmarkHelp() {
+  alert('To bookmark: press Cmd + D on Mac, or use your browser menu and choose "Add bookmark" / "Add to Home Screen".');
+}
+
+function maybeShowBookmarkPrompt() {
+  const dismissed = localStorage.getItem('bookmark-dismissed');
+  if (!dismissed) {
+    setTimeout(() => {
+      document.getElementById('bookmarkPrompt').classList.add('show');
+    }, 2200);
+  }
+}
+
+function registerServiceWorker() {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+  }
+}
+
+// ---- INIT ----
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSearchPanel(); });
+window.addEventListener('scroll', handleBackTop);
+initKitSetup();
+initInteractionChecker();
+updateInteractions();
+loadContacts();
+initDoseTool();
+initReveal();
+maybeShowBookmarkPrompt();
+registerServiceWorker();
+resetQuiz();
+updateCallNurseCta();
+initCallNurseCta();
+</script>
+</body>
+</html>
