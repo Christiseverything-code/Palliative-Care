@@ -193,6 +193,15 @@ nav { background: var(--white); border-bottom: 1px solid var(--border); padding:
 .dose-log-item:last-child { border-bottom: none; }
 .dose-log-item strong { color: var(--slate); font-size: 0.84rem; }
 .dose-log-item span { color: var(--text-muted); font-size: 0.78rem; text-align: right; }
+.dose-interval-setup { background: var(--cream); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; margin: 0.85rem 0; }
+.dose-interval-setup h4 { font-size: 0.85rem; color: var(--slate); margin-bottom: 0.35rem; }
+.dose-interval-row { display: grid; grid-template-columns: 1fr auto auto; gap: 0.5rem; align-items: center; padding: 0.45rem 0; border-bottom: 1px solid var(--border); font-size: 0.82rem; }
+.dose-interval-row:last-child { border-bottom: none; }
+.dose-interval-row input[type=number] { width: 4rem; padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px; font-family: 'DM Sans', sans-serif; }
+.dose-interval-row label.remind { display: flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; }
+.dose-safety-banner { background: var(--terracotta-light); border: 1px solid #e0b7ad; border-radius: var(--radius-sm); padding: 0.85rem 1rem; margin-bottom: 0.85rem; font-size: 0.82rem; color: #7A3020; line-height: 1.55; }
+.dose-setup-prompt { background: var(--sage-light); border: 1px solid var(--sage-mid); border-radius: var(--radius-sm); padding: 0.9rem 1rem; margin-bottom: 0.85rem; font-size: 0.83rem; color: var(--slate-mid); line-height: 1.55; }
+.dose-setup-prompt button { margin-top: 0.5rem; background: var(--sage); color: white; border: none; border-radius: var(--radius-sm); padding: 7px 14px; font-size: 0.8rem; cursor: pointer; font-family: 'DM Sans', sans-serif; }
 
 /* SYMPTOM CHECKER */
 .symptom-checker { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; }
@@ -477,7 +486,7 @@ footer strong { color: rgba(255,255,255,0.65); }
   <div class="content">
     <div class="kit-setup reveal" id="kitSetup">
       <h3>Your medicine kit</h3>
-      <p class="small-note">Tick only the medicines your pharmacist gave you. The guide will focus on your kit and pre-fill the interaction checker.</p>
+      <p class="small-note">Tick only the medicines your pharmacist gave you. The guide will focus on your kit, pre-fill the interaction checker, and link to your dose timer.</p>
       <div class="kit-grid" id="kitGrid"></div>
       <div class="kit-actions">
         <button type="button" class="primary" onclick="saveKitSelection()">Save my kit</button>
@@ -749,7 +758,18 @@ footer strong { color: rgba(255,255,255,0.65); }
   <div class="content">
     <div class="dose-tool reveal">
       <h3>Last dose timer</h3>
-      <p class="small-note">Tap a medicine immediately after giving it. The timer helps track elapsed time and earliest next due dose. Always follow your nurse's specific instructions.</p>
+      <div class="dose-safety-banner"><strong>Important:</strong> Only use the “next dose” reminder if your nurse or pharmacist told you the minimum hours between doses. This app does not know your personal prescription — when unsure, call your nurse before giving another dose.</div>
+      <div class="dose-setup-prompt" id="doseSetupPrompt" style="display:none;">
+        <strong>Set up your dosing intervals first.</strong> Enter what your care team wrote on your chart (for each medicine in your kit). Until then, the timer only records <em>when</em> you gave a dose — it will not guess the next time.
+        <button type="button" onclick="document.getElementById('doseIntervalSetup').scrollIntoView({behavior:'smooth'})">Set intervals now</button>
+      </div>
+      <div class="dose-interval-setup" id="doseIntervalSetup">
+        <h4>Your nurse's minimum time between doses (hours)</h4>
+        <p class="small-note">Linked to medicines in your kit. Leave blank or untick reminder if your team did not give you a number.</p>
+        <div id="doseIntervalRows"></div>
+        <button type="button" class="action-btn" style="margin-top:0.65rem;" onclick="saveDoseIntervals()">Save dosing intervals</button>
+      </div>
+      <p class="small-note">Tap a medicine right after you give it to log the time.</p>
       <div class="dose-actions" id="doseActions"></div>
       <div class="dose-log" id="doseLog"><p class="small-note">No doses logged yet.</p></div>
       <div class="dose-export-btns">
@@ -1040,6 +1060,7 @@ function showPage(id) {
   if (btn) btn.classList.add('active');
   currentPage = id;
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (id === 'timing') initDoseTool();
   // close mobile nav
   document.getElementById('navLinks').classList.remove('open');
 }
@@ -1231,8 +1252,95 @@ function updateInteractions() {
 }
 
 // ---- LAST DOSE TIMER ----
-const doseScheduleHours = { morphine: 4, fentanyl: 72, midazolam: 4, clonazepam: 6, haloperidol: 6, metoclopramide: 6, hyoscine: 4, glycopyrronium: 4, dexamethasone: 24 };
+// Suggested examples only — never used for reminders until the carer saves their own values
+const doseIntervalExamples = { morphine: '4', fentanyl: '72', midazolam: '4', clonazepam: '6', haloperidol: '6', metoclopramide: '6', hyoscine: '4', glycopyrronium: '4', dexamethasone: '24' };
+let doseIntervals = {};
 let doseHistory = [];
+
+function loadDoseIntervals() {
+  try {
+    doseIntervals = JSON.parse(localStorage.getItem('carer-dose-intervals') || '{}');
+  } catch (e) { doseIntervals = {}; }
+}
+
+function saveDoseIntervals() {
+  const kit = getKitMedsForDoseTool();
+  const next = {};
+  kit.forEach(med => {
+    const hoursEl = document.getElementById('interval-hours-' + med);
+    const remindEl = document.getElementById('interval-remind-' + med);
+    if (!hoursEl || !remindEl) return;
+    const hours = parseFloat(hoursEl.value);
+    if (remindEl.checked && hours > 0) {
+      next[med] = { hours, remind: true };
+    } else {
+      next[med] = { hours: null, remind: false };
+    }
+  });
+  doseIntervals = next;
+  localStorage.setItem('carer-dose-intervals', JSON.stringify(doseIntervals));
+  updateDoseSetupPrompt();
+  renderDoseLog();
+  showToast('Dosing intervals saved');
+}
+
+function getKitMedsForDoseTool() {
+  const kit = getSavedKit();
+  if (kit.length) return kit.filter(m => interactionMedicines.includes(m));
+  return interactionMedicines;
+}
+
+function getDoseIntervalHours(med) {
+  const cfg = doseIntervals[med];
+  if (!cfg || !cfg.remind || !cfg.hours || cfg.hours <= 0) return null;
+  return cfg.hours;
+}
+
+function hasAnyDoseIntervalConfigured() {
+  return Object.values(doseIntervals).some(c => c && c.remind && c.hours > 0);
+}
+
+function renderDoseIntervalSetup() {
+  const wrap = document.getElementById('doseIntervalRows');
+  if (!wrap) return;
+  const kit = getKitMedsForDoseTool();
+  if (!getSavedKit().length) {
+    wrap.innerHTML = '<p class="small-note">Save your medicine kit on the <a href="#" onclick="showPage(\'medicines\');return false;">Medicines</a> page first — intervals will appear here for those medicines only.</p>';
+    return;
+  }
+  wrap.innerHTML = kit.map(med => {
+    const cfg = doseIntervals[med] || {};
+    const hours = cfg.hours != null ? cfg.hours : '';
+    const remind = cfg.remind === true;
+    const ph = doseIntervalExamples[med] ? 'e.g. ' + doseIntervalExamples[med] : 'hours';
+    return '<div class="dose-interval-row">' +
+      '<span>' + interactionLabels[med] + '</span>' +
+      '<input type="number" min="0.5" step="0.5" id="interval-hours-' + med + '" placeholder="' + ph + '" value="' + hours + '">' +
+      '<label class="remind"><input type="checkbox" id="interval-remind-' + med + '" ' + (remind ? 'checked' : '') + '> Show reminder</label>' +
+      '</div>';
+  }).join('');
+  updateDoseSetupPrompt();
+}
+
+function updateDoseSetupPrompt() {
+  const el = document.getElementById('doseSetupPrompt');
+  if (!el) return;
+  const needsKit = !getSavedKit().length;
+  const needsIntervals = getSavedKit().length && !hasAnyDoseIntervalConfigured();
+  el.style.display = (needsKit || needsIntervals) ? 'block' : 'none';
+}
+
+function formatNextDoseLine(med, at) {
+  const hours = getDoseIntervalHours(med);
+  if (hours == null) {
+    return 'Last: ' + formatSince(at) + '<br><em>Check your nurse\'s chart for next dose</em>';
+  }
+  const due = new Date(at + hours * 3600000);
+  if (Date.now() < due.getTime()) {
+    return 'Last: ' + formatSince(at) + '<br>Earliest next (your setting): ' + due.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+  return 'Last: ' + formatSince(at) + '<br><strong style="color:var(--terracotta)">Minimum interval may have passed — call your nurse before repeating</strong>';
+}
 
 function migrateDoseLog() {
   const legacy = localStorage.getItem('dose-log');
@@ -1255,15 +1363,21 @@ function saveDoseHistory() {
   localStorage.setItem('dose-history', JSON.stringify(doseHistory.slice(-80)));
 }
 
+let doseToolIntervalStarted = false;
 function initDoseTool() {
   const actions = document.getElementById('doseActions');
   if (!actions) return;
-  const kit = getSavedKit();
-  const meds = kit.length ? kit.filter(m => interactionMedicines.includes(m)) : interactionMedicines;
+  loadDoseIntervals();
+  const meds = getKitMedsForDoseTool();
   actions.innerHTML = meds.map(m => `<button class="dose-action" onclick="markDose('${m}')">${interactionLabels[m]}</button>`).join('');
+  renderDoseIntervalSetup();
   migrateDoseLog();
   renderDoseLog();
-  setInterval(renderDoseLog, 60000);
+  updateDoseSetupPrompt();
+  if (!doseToolIntervalStarted) {
+    doseToolIntervalStarted = true;
+    setInterval(renderDoseLog, 60000);
+  }
 }
 
 function markDose(med) {
@@ -1303,23 +1417,27 @@ function renderDoseLog() {
   let html = '';
   Object.keys(latest).forEach(med => {
     const e = latest[med];
-    const due = new Date(e.at + (doseScheduleHours[med] || 4) * 3600000);
-    html += '<div class="dose-log-item"><strong>' + interactionLabels[med] + '</strong><span>Last: ' + formatSince(e.at) + '<br>Guide — earliest next: ' + due.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + '</span></div>';
+    html += '<div class="dose-log-item"><strong>' + interactionLabels[med] + '</strong><span>' + formatNextDoseLine(med, e.at) + '</span></div>';
   });
   html += '<p class="small-note" style="margin-top:0.75rem;">Recent entries</p>';
   recent.forEach(e => {
     html += '<div class="dose-history-item"><strong>' + interactionLabels[e.med] + '</strong> — ' + formatDateTime(e.at) + '</div>';
   });
-  log.innerHTML = html.replace(/<\/motion>/g, '</div>');
+  log.innerHTML = html;
 }
 
 function buildDoseExportText() {
   const lines = ['Caring at Home — medicine log', 'Generated: ' + new Date().toLocaleString(), ''];
   if (!doseHistory.length) lines.push('No doses recorded in this app yet.');
   [...doseHistory].sort((a, b) => b.at - a.at).forEach(e => {
-    const due = new Date(e.at + (doseScheduleHours[e.med] || 4) * 3600000);
     lines.push(interactionLabels[e.med] + ' — given ' + formatDateTime(e.at) + ' (' + formatSince(e.at) + ')');
-    lines.push('  Guide — earliest next dose: ' + due.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    const hrs = getDoseIntervalHours(e.med);
+    if (hrs != null) {
+      const due = new Date(e.at + hrs * 3600000);
+      lines.push('  Carer-set earliest next dose: ' + due.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    } else {
+      lines.push('  Next dose: see nurse chart (not set in app)');
+    }
   });
   lines.push('', 'Carer-recorded in app. Confirm all dosing with your palliative care team.');
   return lines.join('\n');
@@ -1464,7 +1582,12 @@ function saveKitSelection() {
   applyKitFilter();
   syncInteractionFromKit(picked);
   initDoseTool();
-  showToast('Kit saved — showing your medicines');
+  showToast('Kit saved — set dosing intervals on How to give');
+  if (currentPage !== 'timing') {
+    setTimeout(() => {
+      if (confirm('Would you like to enter your nurse\'s minimum hours between doses for these medicines now?')) showPage('timing');
+    }, 400);
+  }
 }
 
 function selectAllKit() {
